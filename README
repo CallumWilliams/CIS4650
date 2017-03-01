@@ -19,4 +19,17 @@ and the syntax tree will be displayed on the screen.
 the directory "absyn" and within "Absyn.java" class, the showTree function
 is implemented.  In addition, since some java files are generated automatically,
 they may contain variables that are not used, which are safe to ignore in
-the compilation process. 
+the compilation process.
+
+
+
+Installing CUP:
+1) Go to: http://www2.cs.tum.edu/projects/cup/install.php
+2) Download java-cup-bin-11b-whatever.tar.gz
+3) Extract it
+4) Move java-cup-11b.jar to /usr/share/java/
+5) Rename it to cup.jar
+6) Pull the most recent makefile
+
+
+I don't know if the changes I made to the makefile are 'correct' but it seems to compile and run
