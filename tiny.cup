@@ -9,7 +9,8 @@
    
 /* Import the class java_cup.runtime.*  */
 //import java_cup.runtime.*;
-import absyn.*;
+
+//import absyn.*;                                                                 << Uncomment this when we get the abstract syntax tree going
    
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
@@ -70,103 +71,151 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
-terminal IF, THEN, ELSE, END, REPEAT, UNTIL, READ, WRITE;
-terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI;
-terminal String ID, NUM;
+terminal IF, ELSE, INT, RETURN, VOID, WHILE;
+terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, LTEQ, GTEQ, EQLTY, NTEQ, COMMA, LSQR, RSQR, LCRL, RCRL;  
+terminal String ID;
+terminal Integer NUM;
 terminal ERROR;
    
-non terminal ExpList program, stmt_seq;
-non terminal Exp stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
-non terminal Exp exp, simple_exp, term, factor;   
+non terminal program, declaration_list, declaration, var_declaration, type_specifier, fun_declaration;
+non terminal params, param_list, param, compound_stmt, local_declarations, statement_list, statement;
+non terminal expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression, var;
+non terminal simple_expression, relop, additive_expression, addop, term, mulop, factor, call, args, arg_list;
+
+  
 
 /* ----------------------------Grammar Section-------------------- */
+
+
+program		        ::= declaration_list
+                      ;
+               
+               
+               
+declaration_list	::= declaration_list declaration
+					  | declaration
+					  ;
+							
+declaration         ::= var_declaration
+                      | fun_declaration
+                      ;
+                         
+var_declaration 	::= type_specifier ID SEMI
+					  | type_specifier ID LSQR NUM RSQR SEMI
+					  ;
+						
+type_specifier      ::= INT
+                      | VOID
+                      ;
+                      
+fun_declaration     ::= type_specifier ID LPAREN params RPAREN compound_stmt
+                      ;
+                      
+params              ::= param_list 
+                      | VOID
+                      ;
+                      
+param_list          ::= param_list COMMA param
+                      | param
+                      ;
+
+param               ::= type_specifier ID
+                      | type_specifier ID LSQR RSQR
+                      ;
+                      
+compound_stmt       ::= LCRL local_declarations statement_list RCRL
+                      ;
+
+local_declarations  ::= local_declarations var_declaration
+                      | //empty
+                      ;
+                      
+statement_list      ::= statement_list statement
+                      | //empty
+                      ;
+                     
+statement           ::= expression_stmt
+                      | compound_stmt
+                      | selection_stmt
+                      | iteration_stmt
+                      | return_stmt
+                      ;
+                      
+expression_stmt     ::= expression SEMI
+                      | SEMI
+                      ;
+                      
+selection_stmt      ::= IF LPAREN expression RPAREN statement
+                      | IF LPAREN expression RPAREN statement ELSE statement
+                      ;
+              
+iteration_stmt      ::= WHILE LPAREN expression RPAREN statement
+                      ;
+                
+return_stmt         ::= RETURN SEMI
+                      | RETURN expression SEMI
+                      ;
+                      
+expression          ::= var EQ expression
+                      | simple_expression
+                      ;
+                      
+var                 ::= ID
+                      | ID LSQR expression RSQR
+                      ;
    
-program	     ::= stmt_seq:s
-                 {: RESULT = s;
-                    System.out.println( "The abstract syntax tree is:" );
-                    Absyn.showTree( RESULT, 0 );
-                 :}
-               ;
+simple_expression   ::= additive_expression relop additive_expression
+                      | additive_expression
+                      ;	
+                      
+relop               ::= LTEQ
+                      | LT
+                      | GT
+                      | GTEQ
+                      | EQLTY
+                      | NTEQ
+                      ;
+                      
+additive_expression ::= additive_expression addop term
+                      | term
+                      ;
+                     
+addop               ::= PLUS
+                      | MINUS
+                      ;
+                      
+term                ::= term mulop factor
+                      | factor
+                      ;
+                      
+mulop               ::= TIMES
+                      | OVER
+                      ;
+                      
+factor              ::= LPAREN expression RPAREN
+                      | var
+                      | call
+                      | NUM
+                      ;
+                      
+call                ::= ID LPAREN args RPAREN
+                      ;
+                      
+args                ::= arg_list
+                      | //empty
+                      ;
 
-stmt_seq     ::= stmt_seq:s1 SEMI stmt:s2 
-                 {: ExpList t = s1;
-                    while( t.tail != null )
-                      t = t.tail;
-                    t.tail = new ExpList(s2, null);
-                    RESULT = s1;
-                 :}
-               | stmt:s
-                 {: RESULT = new ExpList(s, null); :}
-               | error SEMI stmt:s
-                 {: parser.report_error("invalid", null); 
-                    RESULT = new ExpList(s, null); 
-                 :}
-               ;
+arg_list            ::= arg_list COMMA expression
+                      | expression
+                      ;
+   
+                      
+                      
 
-stmt         ::= if_stmt:i
-                 {: RESULT = i; :}
-               | repeat_stmt:r
-                 {: RESULT = r; :}
-               | assign_stmt:a
-                 {: RESULT = a; :}
-               | read_stmt:r
-                 {: RESULT = r; :}
-               | write_stmt:w
-                 {: RESULT = w; :}
-               ;
+                      
 
-if_stmt      ::= IF:i exp:e THEN stmt_seq:s END
-                 {: RESULT = new IfExp(ileft, e, s, null); :}
-               | IF:i exp:e THEN stmt_seq:s1 ELSE stmt_seq:s2 END
-                 {: RESULT = new IfExp(ileft, e, s1, s2); :}
-               ;
 
-repeat_stmt  ::= REPEAT:r stmt_seq:s UNTIL exp:e
-                 {: RESULT = new RepeatExp(rleft, s, e); :}
-               ;
 
-assign_stmt  ::= ID:i ASSIGN exp:e
-                 {: RESULT = new AssignExp(ileft, new VarExp(ileft, i), e); :} 
-               ;
 
-read_stmt    ::= READ:r ID:i
-                 {: RESULT = new ReadExp(rleft, new VarExp(rleft, i)); :}
-               ;
 
-write_stmt   ::= WRITE:w exp:e
-                 {: RESULT = new WriteExp(wleft, e); :}
-               ;
 
-exp          ::= simple_exp:s1 LT simple_exp:s2
-                 {: RESULT = new OpExp(s1left, s1, OpExp.LT, s2); :}
-               | simple_exp:s1 GT simple_exp:s2
-                 {: RESULT = new OpExp(s1left, s1, OpExp.GT, s2); :}
-               | simple_exp:s1 EQ simple_exp:s2
-                 {: RESULT = new OpExp(s1left, s1, OpExp.EQ, s2); :}
-               | simple_exp:s
-                 {: RESULT = s; :}
-               ;
-
-simple_exp   ::= simple_exp:s PLUS term:t
-                 {: RESULT = new OpExp(sleft, s, OpExp.PLUS, t); :}
-               | simple_exp:s MINUS term:t
-                 {: RESULT = new OpExp(sleft, s, OpExp.MINUS, t); :}
-               | term:t
-                 {: RESULT = t; :}
-               ;
-
-term         ::= term:t TIMES factor:f
-                 {: RESULT = new OpExp(tleft, t, OpExp.TIMES, f); :}
-               | term:t OVER factor:f
-                 {: RESULT = new OpExp(tleft, t, OpExp.OVER, f); :}
-               | factor:f
-                 {: RESULT = f; :}
-               ;
-
-factor       ::= LPAREN exp:e RPAREN
-                 {: RESULT = e; :}
-               | NUM:n
-                 {: RESULT = new IntExp(nleft, n); :}
-               | ID:i
-                 {: RESULT = new VarExp(ileft, i); :}
-               ;
