@@ -23,6 +23,16 @@ the compilation process.
 
 
 
+
+
+	---------------------------------------------------------------------------------------------
+	
+	I'm just using the space below as a notepad. Feel free to move it somewhere more appropriate.
+	
+    ---------------------------------------------------------------------------------------------
+
+
+
 Installing CUP:
 1) Go to: http://www2.cs.tum.edu/projects/cup/install.php
 2) Download java-cup-bin-11b-whatever.tar.gz
@@ -32,4 +42,42 @@ Installing CUP:
 6) Pull the most recent makefile
 
 
-I don't know if the changes I made to the makefile are 'correct' but it seems to compile and run
+I don't know if the changes I made to the makefile for compiling the cup file are 'correct' but it seems to compile and run
+
+Compiling:
+	make all        -does everything
+	
+	or
+	
+	make Lexer.java       -Lexer
+	make parser.java      -Parser
+	make Main             -Main class
+
+Running:
+	java -classpath /usr/share/java/cup.jar:. Main inputFile
+		
+		ex: java -classpath /usr/share/java/cup.jar:. Main "cminus_samples/ex1.cminus"
+		
+		
+		
+		
+Completed so far:
+	-Can compile and run without syntax tree for now (Just 1 line at top of tiny.cup + makefile)
+	-Added in the needed tokens and removed the uneeded ones in the flex file
+	-Removed prof's grammar from the cup file and added in the one from the spec 
+	 (NOTE: his grammar is a good (well, our only) reference for doing the syntax tree but I had to delete it; grab it from courselink)
+	 
+To Do:
+	-Get the scanner finished (bracket balancing & making sure all the regex's work and match the spec)
+	-Figure out how the hell a syntax tree is made (Slides will help a bit)
+	-probably more
+	 
+	
+		
+		
+		
+		
+		
+		
+		
+		
