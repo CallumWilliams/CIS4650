@@ -86,7 +86,9 @@ non terminal simple_expression, relop, additive_expression, addop, term, mulop, 
 /* ----------------------------Grammar Section-------------------- */
 
 
-program		        ::= declaration_list
+program		        ::= declaration_list:d {:
+							Object FULL_EXP = d;
+						:}
                       ;
                
                
@@ -99,8 +101,14 @@ declaration         ::= var_declaration
                       | fun_declaration
                       ;
                          
-var_declaration 	::= type_specifier ID SEMI
-					  | type_specifier ID LSQR NUM RSQR SEMI
+var_declaration 	::= type_specifier ID:i SEMI {:
+							SimpleVar s = new SimpleVar(ileft, i);
+							System.out.println("simple var");
+						:}
+					  | type_specifier ID:i LSQR NUM:n RSQR SEMI {:
+							IndexVar d = new IndexVar(ileft, i, new IntExp(nleft, n));
+							System.out.println("index var");
+						:}
 					  ;
 						
 type_specifier      ::= INT
@@ -151,8 +159,12 @@ selection_stmt      ::= IF LPAREN expression RPAREN statement
 iteration_stmt      ::= WHILE LPAREN expression RPAREN statement
                       ;
                 
-return_stmt         ::= RETURN SEMI
-                      | RETURN expression SEMI
+return_stmt         ::= RETURN:r SEMI {:
+							ReturnExp retexp = new ReturnExp(rleft, null);
+						:}
+                      | RETURN expression:e SEMI {:
+							
+						:}
                       ;
                       
 expression          ::= var EQ expression
@@ -175,7 +187,9 @@ relop               ::= LTEQ
                       | NTEQ
                       ;
                       
-additive_expression ::= additive_expression addop term
+additive_expression ::= additive_expression addop term {:
+							
+						:}
                       | term
                       ;
                      
