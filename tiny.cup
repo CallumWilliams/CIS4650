@@ -3,27 +3,27 @@
   File Name: tiny.cup
   To Build: java java_cup.Main < tiny.cup
 */
-   
-   
+
+
 /* ----------------------Preliminary Declarations Section--------------------*/
-   
+
 /* Import the class java_cup.runtime.*  */
 //import java_cup.runtime.*;
 import absyn.*;
-   
+
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
 parser code {:
-    
+
     /* Change the method report_error so it will display the line and
        column of where the error occurred in the input as well as the
        reason for the error which is passed into the method in the
        String 'message'. */
     public void report_error(String message, Object info) {
-   
+
         /* Create a StringBuffer called 'm' with the string 'Error' in it. */
         StringBuffer m = new StringBuffer("Error");
-   
+
         /* Check if the information passed to the method is the same
            type as the type java_cup.runtime.Symbol. */
         if (info instanceof java_cup.runtime.Symbol) {
@@ -31,31 +31,31 @@ parser code {:
                information in the object info that is being typecasted
                as a java_cup.runtime.Symbol object. */
             java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
-   
+
             /* Check if the line number in the input is greater or
                equal to zero. */
-            if (s.left >= 0) {                
+            if (s.left >= 0) {
                 /* Add to the end of the StringBuffer error message
                    the line number of the error in the input. */
-                m.append(" in line "+(s.left+1));   
+                m.append(" in line "+(s.left+1));
                 /* Check if the column number in the input is greater
                    or equal to zero. */
-                if (s.right >= 0)                    
+                if (s.right >= 0)
                     /* Add to the end of the StringBuffer error message
                        the column number of the error in the input. */
                     m.append(", column "+(s.right+1));
             }
         }
-   
+
         /* Add to the end of the StringBuffer error message created in
            this method the message that was passed into this method. */
         m.append(" : "+message);
-   
+
         /* Print the contents of the StringBuffer 'm', which contains
            an error message, out on a line. */
         System.err.println(m);
     }
-   
+
     /* Change the method report_fatal_error so when it reports a fatal
        error it will display the line and column number of where the
        fatal error occurred in the input as well as the reason for the
@@ -66,16 +66,16 @@ parser code {:
         System.exit(1);
     }
 :};
-   
-   
+
+
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
-   
+
 terminal IF, ELSE, INT, RETURN, VOID, WHILE;
-terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, LTEQ, GTEQ, EQLTY, NTEQ, COMMA, LSQR, RSQR, LCRL, RCRL;  
+terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, LTEQ, GTEQ, EQLTY, NTEQ, COMMA, LSQR, RSQR, LCRL, RCRL;
 terminal String ID;
 terminal Integer NUM;
 terminal ERROR;
-   
+
 
 non terminal DecList program, declaration_list;
 non terminal VarDecList params, param_list, local_declarations;
@@ -88,70 +88,64 @@ non terminal Var var;
 non terminal Exp factor, call, simple_expression, additive_expression, term, expression, selection_stmt, iteration_stmt, return_stmt, statement, expression_stmt;
 non terminal CompoundExp compound_stmt;
 non terminal Dec fun_declaration, declaration;
-non terminal VarDec param, var_declaration; 
+non terminal VarDec param, var_declaration;
 
 
 
 
-  
+
 
 /* ----------------------------Grammar Section-------------------- */
 
 
-program		        ::= declaration_list:d 
-                        {:
-							RESULT = d;
-						:}
+program		        ::= declaration_list:d
+                      {: RESULT = d; :}
                       ;
-               
-               
-               
+
+
+
 declaration_list    ::= declaration_list:d1 declaration:d2
-                        {: 
+                        {:
                             DecList t = d1;
                             while( t.tail != null )
                                 t = t.tail;
                             t.tail = new DecList(d2, null);
                            RESULT = d1;
-                         :}      
-					  | declaration:d 
-					    {: RESULT = new DecList(d, null); :}
-					  | 
-					    {: RESULT = new DecList(null,null); :} 
-					  ;
-							
+                         :}
+					              | declaration:d
+					              {: RESULT = new DecList(d, null); :}
+					              |
+					              {: RESULT = new DecList(null,null); :}
+					              ;
+
 declaration         ::= var_declaration:v
                         {: RESULT = v; :}
                       | fun_declaration:f
                          {: RESULT = f; :}
                       ;
-                         
-var_declaration 	::= type_specifier:t ID:i SEMI 
-                        {:
-							RESULT = new SimpleDec(tleft, t, i);
-						:}
-					  | type_specifier:t ID:i LSQR NUM:n RSQR SEMI 
-					    {:
-							RESULT = new ArrayDec(tleft, t, i, new IntExp(ileft, n));
-						:}
+
+var_declaration 	::= type_specifier:t ID:i SEMI
+                        {: RESULT = new SimpleDec(tleft, t, i); :}
+					  | type_specifier:t ID:i LSQR NUM:n RSQR SEMI
+					    {: RESULT = new ArrayDec(tleft, t, i, new IntExp(ileft, n)); :}
 					  ;
-						
+
 type_specifier      ::= INT:i
                         {: RESULT = new NameTy(ileft, NameTy.INT); :}
                       | VOID:v
                         {: RESULT = new NameTy(vleft, NameTy.VOID); :}
                       ;
-                      
+
 fun_declaration     ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
                         {: RESULT = new FunctionDec(tleft, t, i, p, c); :}
                       ;
-                      
-params              ::= param_list:p                                 
+
+params              ::= param_list:p
                         {: RESULT = p; :}
-                      | VOID
-                        /* RESULT =  */                                                      /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/    
+                      | VOID:v
+                        /* RESULT =  */                                                      /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/
                       ;
-                      
+
 param_list          ::= param_list:p1 COMMA param:p2
                         {: VarDecList t = p1;
                             while( t.tail != null )
@@ -166,25 +160,25 @@ param_list          ::= param_list:p1 COMMA param:p2
 param               ::= type_specifier:t ID:i
                          {: RESULT = new SimpleDec(tleft, t, i); :}
                       | type_specifier:t ID:i LSQR RSQR
-                         {: RESULT = new SimpleDec(tleft, t, i); :}  
+                         {: RESULT = new SimpleDec(tleft, t, i); :}
                       ;
-                      
+
 compound_stmt       ::= LCRL local_declarations:d statement_list:s RCRL
                         {: RESULT = new CompoundExp(sleft, d, s); :}
                       ;
 
 local_declarations  ::= local_declarations:d1 var_declaration:d2
                         {: RESULT = new VarDecList(d2, d1); :}
-                      | 
-                        /* RESULT = */                                             /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/    
+                      |
+                        /* RESULT = */                                             /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/
                       ;
-                      
+
 statement_list      ::= statement_list:s1 statement:s2
-                        {: RESULT = new ExpList(s2, s1);  :}                 
-                      | 
-                        /* RESULT =  */                                              /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/                                      
+                        {: RESULT = new ExpList(s2, s1);  :}
+                      |
+                        /* RESULT =  */                                              /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/
                       ;
-                     
+
 statement           ::= expression_stmt:e
                         {: RESULT = e; :}
                       | compound_stmt:c
@@ -196,84 +190,84 @@ statement           ::= expression_stmt:e
                       | return_stmt:r
                         {: RESULT = r; :}
                       ;
-                      
+
 expression_stmt     ::= expression:e SEMI
                         {: RESULT = e; :}
                       | SEMI
                       ;
-                      
+
 selection_stmt      ::= IF LPAREN expression:e RPAREN statement:s1
                         {: RESULT = new IfExp(eleft, e, s1, null); :}
                       | IF LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
                         {: RESULT = new IfExp(eleft, e, s1, s2); :}
                       ;
-              
+
 iteration_stmt      ::= WHILE LPAREN expression:e RPAREN statement:s
                         {: RESULT = new WhileExp(eleft, e, s); :}
                       ;
-                
+
 return_stmt         ::= RETURN:r SEMI
                         {: RESULT = new ReturnExp(rleft, null); :}
-                      | RETURN:r expression:e SEMI 
+                      | RETURN:r expression:e SEMI
                         {: RESULT = new ReturnExp(rleft, e); :}
                       ;
-                      
+
 expression          ::= var:v EQ expression:e
                         {: RESULT = new AssignExp(vleft, new VarExp(vleft, v), e); :}
                       | simple_expression:s
                         {: RESULT = s; :}
                       ;
-                      
+
 var                 ::= ID:i
                         {: RESULT = new SimpleVar(ileft, i); :}
                       | ID:i LSQR expression:e RSQR
                         {: RESULT = new IndexVar(ileft, i, e); :}
                       ;
-   
+
 simple_expression   ::= additive_expression:e1 relop:r additive_expression:e2
-                        {: RESULT = new OpExp(e1left, e1, r, e2); :}          
+                        {: RESULT = new OpExp(e1left, e1, r, e2); :}
                       | additive_expression:e
                         {: RESULT = e; :}
-                      ;	
-                      
+                      ;
+
 relop               ::= LTEQ:i
                         {: RESULT = OpExp.LE; :}
                       | LT:i
-                        {: RESULT = OpExp.LT; :}                  
+                        {: RESULT = OpExp.LT; :}
                       | GT:i
-                        {: RESULT = OpExp.GT; :} 
+                        {: RESULT = OpExp.GT; :}
                       | GTEQ:i
-                        {: RESULT = OpExp.GE; :} 
+                        {: RESULT = OpExp.GE; :}
                       | EQLTY:i
-                        {: RESULT = OpExp.EQ; :} 
+                        {: RESULT = OpExp.EQ; :}
                       | NTEQ:i
-                        {: RESULT = OpExp.NE; :} 
+                        {: RESULT = OpExp.NE; :}
                       ;
-                      
-additive_expression ::= additive_expression:e addop:o term:t 
+
+additive_expression ::= additive_expression:e addop:o term:t
                         {: RESULT = new OpExp(eleft, e, o, t); :}
                       | term:t
                         {: RESULT =  t; :}
                       ;
-                     
+
 addop               ::= PLUS:i
                         {: RESULT = OpExp.PLUS; :}
                       | MINUS:i
                         {: RESULT = OpExp.MINUS; :}
                       ;
-                      
+
 term                ::= term:t mulop:o factor:f
                         {: RESULT = new OpExp(tleft, t, o, f); :}
                       | factor:f
                         {: RESULT = f; :})
                       ;
-                      
+
 mulop               ::= TIMES:i
                         {: RESULT = OpExp.MUL; :}
                       | OVER:i
                         {: RESULT = OpExp.DIV; :}
                       ;
-                      
+
 factor              ::= LPAREN expression:e RPAREN
                         {: RESULT = e; :}
                       | var:v1
@@ -283,15 +277,15 @@ factor              ::= LPAREN expression:e RPAREN
                       | NUM:n
                         {: RESULT = new IntExp(nleft, n); :}
                       ;
-                      
+
 call                ::= ID:i LPAREN args:a RPAREN
                         {: RESULT = new CallExp(ileft, i, a); :}
                       ;
-                      
+
 args                ::= arg_list:a
                         {: RESULT = a; :}
-                      | 
-                       /* RESULT = */                                          /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/    
+                      |
+                        {: RESULT = null; :} /*<< is that right? */
                       ;
 
 arg_list            ::= arg_list:e1 COMMA expression:e2
@@ -304,14 +298,3 @@ arg_list            ::= arg_list:e1 COMMA expression:e2
                       | expression:e
                         {: RESULT = new ExpList(e, null); :}
                       ;
-   
-                      
-                      
-
-                      
-
-
-
-
-
-
