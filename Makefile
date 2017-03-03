@@ -8,7 +8,7 @@ CUP=$(JAVA) $(CLASSPATH) java_cup.Main <
 all: Main.class
 
 #Replace with this when we get syntax tree going
-Main.class: absyn_tiny/*.java parser.java sym.java Lexer.java Main.java
+Main.class: absyn/*.java parser.java sym.java Lexer.java Main.java
 
 #Main.class: Lexer.java parser.java Main.java 
 

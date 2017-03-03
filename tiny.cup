@@ -8,9 +8,8 @@
 /* ----------------------Preliminary Declarations Section--------------------*/
    
 /* Import the class java_cup.runtime.*  */
-//import java_cup.runtime.*;
-
-import absyn_tiny.*;                                                                  //Uncomment this when we get the abstract syntax tree going
+import java_cup.runtime.*;
+import absyn.*;
    
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
