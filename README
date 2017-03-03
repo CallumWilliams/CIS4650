@@ -61,16 +61,70 @@ Running:
 		
 		
 		
-Completed so far:
-	-Can compile and run without syntax tree for now (Just 1 line at top of tiny.cup + makefile)
-	-Added in the needed tokens and removed the uneeded ones in the flex file
-	-Removed prof's grammar from the cup file and added in the one from the spec 
-	 (NOTE: his grammar is a good (well, our only) reference for doing the syntax tree but I had to delete it; grab it from courselink)
-	 
-To Do:
-	-Get the scanner finished (bracket balancing & making sure all the regex's work and match the spec)
-	-Figure out how the hell a syntax tree is made (Slides will help a bit)
-	-probably more
+Update:
+    So..............
+    I sorted out the bug I was talking about last night.
+    I've got the tree building in a somewhat partially complete state.
+    It compiles fine now but it doesn't really run and it sure as hell isn't right.
+    
+    Pull it and play with it but we can always go back to an early commit (a blank slate) and try again.
+    
+    
+    I ran the cminus sample through it and it threw an exception right away, so if you want to start debugging that'd be a good place.
+            --I suspect it's related to the relop, mulop, and addop rules that I have declared as Integers. They might need to be IntExp()s or something but then other things require them as ints so idk
+            
+            
+    Quick note on what I learned:
+        Each rule that shows up as a variable needs to be declared as a type at the top.
+            For example:
+            
+                param_list          ::= param_list:p1 COMMA param:p2
+                                      {: code...
+                                        t.tail = new VarDecList(p2, null);
+                                        ... code :}
+                                        
+                                        
+            We want to use p2 (param) here, so at the top we need to declare its type:
+            
+                non terminal VarDec param;
+            
+            Now every time you turn a param rule in to a variable, it will be of the abstract type VarDec.
+            
+            Then you can pass it to constructors expecting a certain type like above where VerDecList is defined as:
+            
+                public VarDecList(VarDec head, VarDecList tail).
+                
+                
+                
+                
+                
+                
+      That seems to be the key thing to take away. I didn't learn that until the very end though so I think we should be able to go through it all and touch up parts that don't make sense.
+      I also fudged VarDec.java a bit but left a comment
+                
+                
+       
+        
+    
+    
+
+        
+        
+        
+       
+        
+        
+    
+    
+        
+        
+        
+        
+        
+   
+    
+	
+	
 	 
 	
 		

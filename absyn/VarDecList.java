@@ -2,8 +2,8 @@ package absyn;
 
 public class VarDecList
 {
-    VarDec head;
-    VarDecList tail;
+    public VarDec head;
+    public VarDecList tail;
     public VarDecList(VarDec head, VarDecList tail) 
     {
         this.head = head;

@@ -2,8 +2,8 @@ package absyn;
 
 public class CallExp extends Exp
 {
-    String func;
-    ExpList args;
+    public String func;
+    public ExpList args;
     public CallExp(int pos, String func, ExpList args) 
     {
         this.pos  = pos;

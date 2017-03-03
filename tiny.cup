@@ -8,7 +8,7 @@
 /* ----------------------Preliminary Declarations Section--------------------*/
    
 /* Import the class java_cup.runtime.*  */
-import java_cup.runtime.*;
+//import java_cup.runtime.*;
 import absyn.*;
    
 /* Parser code to change the way the parser reports errors (include
@@ -76,150 +76,233 @@ terminal String ID;
 terminal Integer NUM;
 terminal ERROR;
    
-non terminal program, declaration_list, declaration, var_declaration, type_specifier, fun_declaration;
-non terminal params, param_list, param, compound_stmt, local_declarations, statement_list, statement;
-non terminal expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression, var;
-non terminal simple_expression, relop, additive_expression, addop, term, mulop, factor, call, args, arg_list;
+
+non terminal DecList program, declaration_list;
+non terminal VarDecList params, param_list, local_declarations;
+non terminal ExpList statement_list, arg_list, args;
+non terminal NameTy type_specifier;
+non terminal Integer relop, addop, mulop;
+
+
+non terminal Var var;
+non terminal Exp factor, call, simple_expression, additive_expression, term, expression, selection_stmt, iteration_stmt, return_stmt, statement, expression_stmt;
+non terminal CompoundExp compound_stmt;
+non terminal Dec fun_declaration, declaration;
+non terminal VarDec param, var_declaration; 
+
+
+
 
   
 
 /* ----------------------------Grammar Section-------------------- */
 
 
-program		        ::= declaration_list:d {:
-							Object FULL_EXP = d;
+program		        ::= declaration_list:d 
+                        {:
+							RESULT = d;
 						:}
                       ;
                
                
                
-declaration_list	::= declaration_list declaration
-					  | declaration
+declaration_list    ::= declaration_list:d1 declaration:d2
+                        {: 
+                            DecList t = d1;
+                            while( t.tail != null )
+                                t = t.tail;
+                            t.tail = new DecList(d2, null);
+                           RESULT = d1;
+                         :}      
+					  | declaration:d 
+					    {: RESULT = new DecList(d, null); :}
+					  | 
+					    {: RESULT = new DecList(null,null); :} 
 					  ;
 							
-declaration         ::= var_declaration
-                      | fun_declaration
+declaration         ::= var_declaration:v
+                        {: RESULT = v; :}
+                      | fun_declaration:f
+                         {: RESULT = f; :}
                       ;
                          
-var_declaration 	::= type_specifier ID:i SEMI {:
-							SimpleVar s = new SimpleVar(ileft, i);
-							System.out.println("simple var");
+var_declaration 	::= type_specifier:t ID:i SEMI 
+                        {:
+							RESULT = new SimpleDec(tleft, t, i);
 						:}
-					  | type_specifier ID:i LSQR NUM:n RSQR SEMI {:
-							IndexVar d = new IndexVar(ileft, i, new IntExp(nleft, n));
-							System.out.println("index var");
+					  | type_specifier:t ID:i LSQR NUM:n RSQR SEMI 
+					    {:
+							RESULT = new ArrayDec(tleft, t, i, new IntExp(ileft, n));
 						:}
 					  ;
 						
-type_specifier      ::= INT
+type_specifier      ::= INT:i
+                        {: RESULT = new NameTy(ileft, NameTy.INT); :}
+                      | VOID:v
+                        {: RESULT = new NameTy(vleft, NameTy.VOID); :}
+                      ;
+                      
+fun_declaration     ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
+                        {: RESULT = new FunctionDec(tleft, t, i, p, c); :}
+                      ;
+                      
+params              ::= param_list:p                                 
+                        {: RESULT = p; :}
                       | VOID
+                        /* RESULT =  */                                                      /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/    
                       ;
                       
-fun_declaration     ::= type_specifier ID LPAREN params RPAREN compound_stmt
-                      ;
-                      
-params              ::= param_list 
-                      | VOID
-                      ;
-                      
-param_list          ::= param_list COMMA param
-                      | param
+param_list          ::= param_list:p1 COMMA param:p2
+                        {: VarDecList t = p1;
+                            while( t.tail != null )
+                                t = t.tail;
+                            t.tail = new VarDecList(p2, null);
+                           RESULT = p1;
+                         :}
+                      | param:p1
+                         {: RESULT = new VarDecList(p1, null); :}
                       ;
 
-param               ::= type_specifier ID
-                      | type_specifier ID LSQR RSQR
+param               ::= type_specifier:t ID:i
+                         {: RESULT = new SimpleDec(tleft, t, i); :}
+                      | type_specifier:t ID:i LSQR RSQR
+                         {: RESULT = new SimpleDec(tleft, t, i); :}  
                       ;
                       
-compound_stmt       ::= LCRL local_declarations statement_list RCRL
+compound_stmt       ::= LCRL local_declarations:d statement_list:s RCRL
+                        {: RESULT = new CompoundExp(sleft, d, s); :}
                       ;
 
-local_declarations  ::= local_declarations var_declaration
-                      | //empty
+local_declarations  ::= local_declarations:d1 var_declaration:d2
+                        {: RESULT = new VarDecList(d2, d1); :}
+                      | 
+                        /* RESULT = */                                             /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/    
                       ;
                       
-statement_list      ::= statement_list statement
-                      | //empty
+statement_list      ::= statement_list:s1 statement:s2
+                        {: RESULT = new ExpList(s2, s1);  :}                 
+                      | 
+                        /* RESULT =  */                                              /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/                                      
                       ;
                      
-statement           ::= expression_stmt
-                      | compound_stmt
-                      | selection_stmt
-                      | iteration_stmt
-                      | return_stmt
+statement           ::= expression_stmt:e
+                        {: RESULT = e; :}
+                      | compound_stmt:c
+                        {: RESULT = c; :}
+                      | selection_stmt:s
+                        {: RESULT = s; :}
+                      | iteration_stmt:i
+                        {: RESULT = i; :}
+                      | return_stmt:r
+                        {: RESULT = r; :}
                       ;
                       
-expression_stmt     ::= expression SEMI
+expression_stmt     ::= expression:e SEMI
+                        {: RESULT = e; :}
                       | SEMI
                       ;
                       
-selection_stmt      ::= IF LPAREN expression RPAREN statement
-                      | IF LPAREN expression RPAREN statement ELSE statement
+selection_stmt      ::= IF LPAREN expression:e RPAREN statement:s1
+                        {: RESULT = new IfExp(eleft, e, s1, null); :}
+                      | IF LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
+                        {: RESULT = new IfExp(eleft, e, s1, s2); :}
                       ;
               
-iteration_stmt      ::= WHILE LPAREN expression RPAREN statement
+iteration_stmt      ::= WHILE LPAREN expression:e RPAREN statement:s
+                        {: RESULT = new WhileExp(eleft, e, s); :}
                       ;
                 
-return_stmt         ::= RETURN:r SEMI {:
-							ReturnExp retexp = new ReturnExp(rleft, null);
-						:}
-                      | RETURN expression:e SEMI {:
-							
-						:}
+return_stmt         ::= RETURN:r SEMI
+                        {: RESULT = new ReturnExp(rleft, null); :}
+                      | RETURN:r expression:e SEMI 
+                        {: RESULT = new ReturnExp(rleft, e); :}
                       ;
                       
-expression          ::= var EQ expression
-                      | simple_expression
+expression          ::= var:v EQ expression:e
+                        {: RESULT = new AssignExp(vleft, new VarExp(vleft, v), e); :}
+                      | simple_expression:s
+                        {: RESULT = s; :}
                       ;
                       
-var                 ::= ID
-                      | ID LSQR expression RSQR
+var                 ::= ID:i
+                        {: RESULT = new SimpleVar(ileft, i); :}
+                      | ID:i LSQR expression:e RSQR
+                        {: RESULT = new IndexVar(ileft, i, e); :}
                       ;
    
-simple_expression   ::= additive_expression relop additive_expression
-                      | additive_expression
+simple_expression   ::= additive_expression:e1 relop:r additive_expression:e2
+                        {: RESULT = new OpExp(e1left, e1, r, e2); :}          
+                      | additive_expression:e
+                        {: RESULT = e; :}
                       ;	
                       
-relop               ::= LTEQ
-                      | LT
-                      | GT
-                      | GTEQ
-                      | EQLTY
-                      | NTEQ
+relop               ::= LTEQ:i
+                        {: RESULT = OpExp.LE; :}
+                      | LT:i
+                        {: RESULT = OpExp.LT; :}                  
+                      | GT:i
+                        {: RESULT = OpExp.GT; :} 
+                      | GTEQ:i
+                        {: RESULT = OpExp.GE; :} 
+                      | EQLTY:i
+                        {: RESULT = OpExp.EQ; :} 
+                      | NTEQ:i
+                        {: RESULT = OpExp.NE; :} 
                       ;
                       
-additive_expression ::= additive_expression addop term {:
-							
-						:}
-                      | term
+additive_expression ::= additive_expression:e addop:o term:t 
+                        {: RESULT = new OpExp(eleft, e, o, t); :}
+                      | term:t
+                        {: RESULT =  t; :}
                       ;
                      
-addop               ::= PLUS
-                      | MINUS
+addop               ::= PLUS:i
+                        {: RESULT = OpExp.PLUS; :}
+                      | MINUS:i
+                        {: RESULT = OpExp.MINUS; :}
                       ;
                       
-term                ::= term mulop factor
-                      | factor
+term                ::= term:t mulop:o factor:f
+                        {: RESULT = new OpExp(tleft, t, o, f); :}
+                      | factor:f
+                        {: RESULT = f; :})
                       ;
                       
-mulop               ::= TIMES
-                      | OVER
+mulop               ::= TIMES:i
+                        {: RESULT = OpExp.MUL; :}
+                      | OVER:i
+                        {: RESULT = OpExp.DIV; :}
                       ;
                       
-factor              ::= LPAREN expression RPAREN
-                      | var
-                      | call
-                      | NUM
+factor              ::= LPAREN expression:e RPAREN
+                        {: RESULT = e; :}
+                      | var:v1
+                        //{: RESULT = v1; :}
+                      | call:c
+                        {: RESULT = c; :}
+                      | NUM:n
+                        {: RESULT = new IntExp(nleft, n); :}
                       ;
                       
-call                ::= ID LPAREN args RPAREN
+call                ::= ID:i LPAREN args:a RPAREN
+                        {: RESULT = new CallExp(ileft, i, a); :}
                       ;
                       
-args                ::= arg_list
-                      | //empty
+args                ::= arg_list:a
+                        {: RESULT = a; :}
+                      | 
+                       /* RESULT = */                                          /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/    
                       ;
 
-arg_list            ::= arg_list COMMA expression
-                      | expression
+arg_list            ::= arg_list:e1 COMMA expression:e2
+                        {: ExpList t = e1;
+                            while( t.tail != null )
+                                t = t.tail;
+                            t.tail = new ExpList(e2, null);
+                           RESULT = e1;
+                         :}
+                      | expression:e
+                        {: RESULT = new ExpList(e, null); :}
                       ;
    
                       

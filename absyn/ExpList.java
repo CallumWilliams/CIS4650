@@ -2,8 +2,8 @@ package absyn;
 
 public class ExpList
 {
-    Exp head;
-    ExpList tail;
+    public Exp head;
+    public ExpList tail;
     public ExpList(Exp head, ExpList tail) 
     {
         this.head = head;

@@ -2,9 +2,9 @@ package absyn;
 
 public class ArrayDec extends VarDec
 {
-    NameTy typ;
-    String name;
-    IntExp size;
+    public NameTy typ;
+    public String name;
+    public IntExp size;
     public ArrayDec(int pos, NameTy typ, String name, IntExp size) 
     {
         this.pos = pos;

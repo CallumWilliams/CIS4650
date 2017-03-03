@@ -2,7 +2,7 @@ package absyn;
 
 public class VarExp extends Exp
 {
-    Var variable;
+    public Var variable;
     
     public VarExp(int pos, Var variable) 
     {
