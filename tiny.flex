@@ -10,7 +10,6 @@
 /* --------------------------Usercode Section------------------------ */
    
 import java_cup.runtime.*;
-import java.util.Stack;
       
 %%
    
@@ -57,7 +56,7 @@ import java.util.Stack;
         return new Symbol(type, yyline, yycolumn, value);
     }
     
-    private Stack stack = new Stack();
+    Boolean inComment = false;
 %}
    
 
@@ -95,39 +94,45 @@ identifier = {letter}+
    code, that will be executed when the scanner matches the associated
    regular expression. */
    
-"if"               { return symbol(sym.IF);     }
-"else"             { return symbol(sym.ELSE);   }
-"int"			   { return symbol(sym.INT);    }
-"return"		   { return symbol(sym.RETURN); }
-"void"             { return symbol(sym.VOID);   }
-"while"			   { return symbol(sym.WHILE);  }
-"<="			   { return symbol(sym.LTEQ);   }			
-">="			   { return symbol(sym.GTEQ);   }
-"=="			   { return symbol(sym.EQLTY);  }
-"!="			   { return symbol(sym.NTEQ);   }
-","			       { return symbol(sym.COMMA); }
+"if"               { if(!inComment) return symbol(sym.IF);     }
+"else"             { if(!inComment) return symbol(sym.ELSE);   }
+"int"			   { if(!inComment) return symbol(sym.INT);    }
+"return"		   { if(!inComment) return symbol(sym.RETURN); }
+"void"             { if(!inComment) return symbol(sym.VOID);   }
+"while"			   { if(!inComment) return symbol(sym.WHILE);  }
+"<="			   { if(!inComment) return symbol(sym.LTEQ);   }			
+">="			   { if(!inComment) return symbol(sym.GTEQ);   }
+"=="			   { if(!inComment) return symbol(sym.EQLTY);  }
+"!="			   { if(!inComment) return symbol(sym.NTEQ);   }
+","			       { if(!inComment) return symbol(sym.COMMA); }
+"["			       { if(!inComment) return symbol(sym.LSQR);   }
+"]"			       { if(!inComment) return symbol(sym.RSQR);   }
+"{"			       { if(!inComment) return symbol(sym.LCRL);   }
+"}"			       { if(!inComment) return symbol(sym.RCRL);   }
 
-//This block will need some kind of stack action for balancing
-//I've got the stack declared as 'stack' above
-"["			       { return symbol(sym.LSQR);   }
-"]"			       { return symbol(sym.RSQR);   }
-"{"			       { return symbol(sym.LCRL);   }
-"}"			       { return symbol(sym.RCRL);   }
-"/*"			   {  } 
-"*/"			   {  } 
-"("                { return symbol(sym.LPAREN); }
-")"                { return symbol(sym.RPAREN); }
+"/*"			   { if(inComment)  
+                        System.out.println("Error in line " + yyline + ", column " + yycolumn +" : Nested comment opening");
+                     inComment = true;  
+                   } 
+                     
+"*/"			   { if(!inComment) 
+                        System.out.println("Error in line " + yyline + ", column " + yycolumn +" : Closing unopened comment");
+                     inComment = false; 
+                   } 
+                     
+"("                { if(!inComment) return symbol(sym.LPAREN); }
+")"                { if(!inComment) return symbol(sym.RPAREN); }
 
-"="                { return symbol(sym.EQ);     }
-"<"                { return symbol(sym.LT);     }
-">"                { return symbol(sym.GT);     }
-"+"                { return symbol(sym.PLUS);   }
-"-"                { return symbol(sym.MINUS);  }
-"*"                { return symbol(sym.TIMES);  }
-"/"                { return symbol(sym.OVER);   }
-";"                { return symbol(sym.SEMI);   }
-{number}           { return symbol(sym.NUM, yytext()); }
-{identifier}       { return symbol(sym.ID, yytext());  }
+"="                { if(!inComment) return symbol(sym.EQ);     }
+"<"                { if(!inComment) return symbol(sym.LT);     }
+">"                { if(!inComment) return symbol(sym.GT);     }
+"+"                { if(!inComment) return symbol(sym.PLUS);   }
+"-"                { if(!inComment) return symbol(sym.MINUS);  }
+"*"                { if(!inComment) return symbol(sym.TIMES);  }
+"/"                { if(!inComment) return symbol(sym.OVER);   }
+";"                { if(!inComment) return symbol(sym.SEMI);   }
+{number}           { if(!inComment) return symbol(sym.NUM, yytext()); }
+{identifier}       { if(!inComment) return symbol(sym.ID, yytext());  }
 {WhiteSpace}*      { /* skip whitespace */ }   
 //"{"[^\}]*"}"       { /* skip comments */ }
-.                  { return symbol(sym.ERROR); }
+.                  { if(!inComment) return symbol(sym.ERROR); }
