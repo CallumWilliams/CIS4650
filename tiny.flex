@@ -86,7 +86,7 @@ number = {digit}+
 letter = [a-zA-Z]
 identifier = {letter}+
 
-%state PARSE
+%state CMT
 
 %%
 /* ------------------------Lexical Rules Section---------------------- */
@@ -96,37 +96,38 @@ identifier = {letter}+
    code, that will be executed when the scanner matches the associated
    regular expression. */
 
-<PARSE> "if"          { if(!inComment) return symbol(sym.IF);     }
-<PARSE> "else"        { if(!inComment) return symbol(sym.ELSE);   }
-<PARSE> "int"			   { if(!inComment) return symbol(sym.INT);    }
-<PARSE> "return"		   { if(!inComment) return symbol(sym.RETURN); }
-<PARSE> "void"        { if(!inComment) return symbol(sym.VOID);   }
-<PARSE> "while"			 { if(!inComment) return symbol(sym.WHILE);  }
-<PARSE> "<="			     { if(!inComment) return symbol(sym.LTEQ);   }
-<PARSE> ">="			     { if(!inComment) return symbol(sym.GTEQ);   }
-<PARSE> "=="			     { if(!inComment) return symbol(sym.EQLTY);  }
-<PARSE> "!="			     { if(!inComment) return symbol(sym.NTEQ);   }
-<PARSE> ","			     { if(!inComment) return symbol(sym.COMMA); }
-<PARSE> "["			     { if(!inComment) return symbol(sym.LSQR);   }
-<PARSE> "]"			     { if(!inComment) return symbol(sym.RSQR);   }
-<PARSE> "{"			     { if(!inComment) return symbol(sym.LCRL);   }
-<PARSE> "}"			     { if(!inComment) return symbol(sym.RCRL);   }
+<YYINITIAL> "if"          		{ if(!inComment) return symbol(sym.IF);     }
+<YYINITIAL> "else"        		{ if(!inComment) return symbol(sym.ELSE);   }
+<YYINITIAL> "int"			 	{ if(!inComment) return symbol(sym.INT);    }
+<YYINITIAL> "return"			{ if(!inComment) return symbol(sym.RETURN); }
+<YYINITIAL> "void"   		 	{ if(!inComment) return symbol(sym.VOID);   }
+<YYINITIAL> "while"				{ if(!inComment) return symbol(sym.WHILE);  }
+<YYINITIAL> "<="			    { if(!inComment) return symbol(sym.LTEQ);   }
+<YYINITIAL> ">="			    { if(!inComment) return symbol(sym.GTEQ);   }
+<YYINITIAL> "=="			    { if(!inComment) return symbol(sym.EQLTY);  }
+<YYINITIAL> "!="			    { if(!inComment) return symbol(sym.NTEQ);   }
+<YYINITIAL> ","				    { if(!inComment) return symbol(sym.COMMA);  }
+<YYINITIAL> "["				    { if(!inComment) return symbol(sym.LSQR);   }
+<YYINITIAL> "]"			     	{ if(!inComment) return symbol(sym.RSQR);   }
+<YYINITIAL> "{"			     	{ if(!inComment) return symbol(sym.LCRL);   }
+<YYINITIAL> "}"			     	{ if(!inComment) return symbol(sym.RCRL);   }
 
-<PARSE> "/*"			     { yybegin(COMMENT); }
-<PARSE> "("                { if(!inComment) return symbol(sym.LPAREN); }
-<PARSE> ")"                { if(!inComment) return symbol(sym.RPAREN); }
-<PARSE> "="                { if(!inComment) return symbol(sym.EQ);     }
-<PARSE> "<"                { if(!inComment) return symbol(sym.LT);     }
-<PARSE> ">"                { if(!inComment) return symbol(sym.GT);     }
-<PARSE> "+"                { if(!inComment) return symbol(sym.PLUS);   }
-<PARSE> "-"                { if(!inComment) return symbol(sym.MINUS);  }
-<PARSE> "*"                { if(!inComment) return symbol(sym.TIMES);  }
-<PARSE> "/"                { if(!inComment) return symbol(sym.OVER);   }
-<PARSE> ";"                { if(!inComment) return symbol(sym.SEMI);   }
-<PARSE> {number}           { if(!inComment) return symbol(sym.NUM, yytext()); }
-<PARSE> {identifier}       { if(!inComment) return symbol(sym.ID, yytext());  }
-<PARSE> {WhiteSpace}*      { /* skip whitespace */ }
-.                  { if(!inComment) return symbol(sym.ERROR); }
+<YYINITIAL> "/*"			    { yybegin(CMT); }
+<YYINITIAL> "("                	{ if(!inComment) return symbol(sym.LPAREN); }
+<YYINITIAL> ")"                	{ if(!inComment) return symbol(sym.RPAREN); }
+<YYINITIAL> "="                	{ if(!inComment) return symbol(sym.EQ);     }
+<YYINITIAL> "<"                	{ if(!inComment) return symbol(sym.LT);     }
+<YYINITIAL> ">"                	{ if(!inComment) return symbol(sym.GT);     }
+<YYINITIAL> "+"                	{ if(!inComment) return symbol(sym.PLUS);   }
+<YYINITIAL> "-"                	{ if(!inComment) return symbol(sym.MINUS);  }
+<YYINITIAL> "*"                	{ if(!inComment) return symbol(sym.TIMES);  }
+<YYINITIAL> "/"                	{ if(!inComment) return symbol(sym.OVER);   }
+<YYINITIAL> ";"                	{ if(!inComment) return symbol(sym.SEMI);   }
+<YYINITIAL> {number}           	{ if(!inComment) return symbol(sym.NUM, Integer.parseInt(yytext())); }
+<YYINITIAL> {identifier}       	{ if(!inComment) return symbol(sym.ID, yytext());  }
+<YYINITIAL> {WhiteSpace}*      	{ /* skip whitespace */ }
+<YYINITIAL> .                  	{ return symbol(sym.ERROR); }
 
-<COMMENT>"*/"			   { yybegin(PARSE); }
-<COMMENT>.            {//ignore}
+<CMT> "*/"			   			{ yybegin(YYINITIAL); }
+<CMT> {WhiteSpace}*				{ /* ignore */ }
+<CMT> .            				{ /* ignore */ }

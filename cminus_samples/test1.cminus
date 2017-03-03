@@ -1,0 +1,30 @@
+int functionOne(void b, int c, int d) {
+	
+	/*random function 1, computes random math */
+	int a;
+	
+	a = c*d;
+	if (a == 0) return a;
+	else return a + functionOne(b, c-1, d);
+	
+}
+
+void functionTwo(int count) 
+
+{while (1 >= 0) {
+	output(count);
+	count = count + 1;
+}}
+
+int main(void) {
+	
+	int x[3];
+	funcThree(x); /*undeclared function
+	
+	
+	comment continued
+	*/
+	functionTwo(1);
+	
+	return 5;
+}
