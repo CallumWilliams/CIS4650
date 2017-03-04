@@ -146,7 +146,7 @@ fun_declaration     ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_st
 params              ::= param_list:p
                         {: RESULT = p; :}
                       | VOID:v
-                        /* RESULT =  */                                                      /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/
+                        
                       ;
 
 param_list          ::= param_list:p1 COMMA param:p2
@@ -216,8 +216,7 @@ return_stmt         ::= RETURN:r SEMI
                       ;
 
 expression          ::= var:v EQ expression:e
-                        {: RESULT = new AssignExp(vleft, new VarExp(vleft, v), e);
-                        System.out.println("var comp token at " + vleft); :}
+                        {: RESULT = new AssignExp(vleft, new VarExp(vleft, v), e); :}
                       | simple_expression:s
                         {: RESULT = s; :}
                       ;
@@ -275,7 +274,7 @@ mulop               ::= TIMES:i
 factor              ::= LPAREN expression:e RPAREN
                         {: RESULT = e; :}
                       | var:v1
-                        //{: RESULT = v1; :}
+                        {: RESULT = new VarExp(v1left, v1); :}
                       | call:c
                         {: RESULT = c; :}
                       | NUM:n

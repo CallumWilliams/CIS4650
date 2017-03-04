@@ -107,6 +107,7 @@ abstract public class Absyn
 	  System.out.println( "ArrayDec:" );
 	  spaces += SPACES;
       showTree( tree.typ, spaces );
+      indent( spaces );
       System.out.println( tree.name );
       showTree( tree.size, spaces );
 	  
