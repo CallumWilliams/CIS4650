@@ -97,7 +97,7 @@ abstract public class Absyn
 	  else {
         indent( spaces );
         /* v crashes code when not commented (NullPointerException) v */
-        //System.out.println( "Illegal expression at line " + tree.pos  );
+        System.out.println( "Illegal expression at line "  );
 	  }
   }
   
@@ -192,6 +192,7 @@ abstract public class Absyn
 	  
 	  indent( spaces );
 	  System.out.println( "NameTy:" );
+	  indent( spaces );
 	  switch( tree.typ ) {
 		  case NameTy.INT:
 			System.out.println( "INT" );
@@ -222,7 +223,7 @@ abstract public class Absyn
       case OpExp.DIV:
         System.out.println( " / " );
         break;
-      case OpExp.EQ:
+      case OpExp.EQLTY:
         System.out.println( " == " );
         break;
       case OpExp.NE:

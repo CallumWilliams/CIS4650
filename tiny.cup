@@ -216,7 +216,8 @@ return_stmt         ::= RETURN:r SEMI
                       ;
 
 expression          ::= var:v EQ expression:e
-                        {: RESULT = new AssignExp(vleft, new VarExp(vleft, v), e); :}
+                        {: RESULT = new AssignExp(vleft, new VarExp(vleft, v), e);
+                        System.out.println("var comp token at " + vleft); :}
                       | simple_expression:s
                         {: RESULT = s; :}
                       ;
@@ -242,7 +243,7 @@ relop               ::= LTEQ:i
                       | GTEQ:i
                         {: RESULT = OpExp.GE; :}
                       | EQLTY:i
-                        {: RESULT = OpExp.EQ; :}
+                        {: RESULT = OpExp.EQLTY; :}
                       | NTEQ:i
                         {: RESULT = OpExp.NE; :}
                       ;
@@ -288,7 +289,7 @@ call                ::= ID:i LPAREN args:a RPAREN
 args                ::= arg_list:a
                         {: RESULT = a; :}
                       |
-                        {: RESULT = null; :} /*<< is that right? */
+                        /*{: RESULT = null; :}*/ /*<< is that right? */
                       ;
 
 arg_list            ::= arg_list:e1 COMMA expression:e2
