@@ -100,8 +100,8 @@ non terminal VarDec param, var_declaration;
 
 program		        ::= declaration_list:d
                       {: RESULT = d; 
-						 //System.out.println("Tree");
-						 //Absyn.showTree(RESULT, 0);
+						 System.out.println("Tree");
+						 Absyn.showTree(RESULT, 0);
                       :}
                       ;
 

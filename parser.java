@@ -360,8 +360,8 @@ class CUP$parser$actions {
 		int dright = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		DecList d = (DecList)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
 		 RESULT = d; 
-						 //System.out.println("Tree");
-						 //Absyn.showTree(RESULT, 0);
+						 System.out.println("Tree");
+						 Absyn.showTree(RESULT, 0);
                       
               CUP$parser$result = parser.getSymbolFactory().newSymbol("program",0, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
