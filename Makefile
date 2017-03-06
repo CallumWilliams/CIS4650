@@ -1,3 +1,4 @@
+JAVA=java
 JAVAC=javac
 JFLEX=jflex
 MAIN=cm.java
@@ -5,9 +6,9 @@ CLASSPATH=-classpath /usr/share/java/cup.jar:.
 CUP=$(JAVA) $(CLASSPATH) java_cup.Main <
 #CUP=cup
 
-all: cminus
+all: Main.class
 
-cminus: absyn/*.java parser.java sym.java Lexer.java cm.java
+Main.class: absyn/*.java parser.java sym.java Lexer.java Main
 
 %.class: %.java
 	$(JAVAC) $(CLASSPATH)  $^
@@ -18,14 +19,13 @@ Lexer.java: cminus.flex
 parser.java: cminus.cup
 	$(CUP) cminus.cup -dump -expect 3 
 	
-Main:
+Main: cm.java
 	javac $(CLASSPATH) $(MAIN)
 
 clean:
 	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
 
 #shortcuts for running Checkpoint 1 tests
-#replacing Main with 'cm' caused errors
 test1:
 	java $(CLASSPATH) Main "cminus_samples/test1.cminus"
 	

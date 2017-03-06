@@ -10,7 +10,7 @@ int functionOne(void b, int c, int d) {
 }
 
 /* error here - no function name */
-void (int count) 
+void funcTwo (int count 
 
 {while (1 >= 0) {
 	output(count);
