@@ -24,7 +24,7 @@ parser code {:
         /* Create a StringBuffer called 'm' with the string 'Error' in it. */
         StringBuffer m = new StringBuffer("Error");
 
-        /* Check if the information passed to the method is the same
+        /* Check if the information passed to the method is the samme
            type as the type java_cup.runtime.Symbol. */
         if (info instanceof java_cup.runtime.Symbol) {
             /* Declare a java_cup.runtime.Symbol object 's' with the
@@ -63,7 +63,7 @@ parser code {:
        'message' and then exit.*/
     public void report_fatal_error(String message, Object info) {
         report_error(message, info);
-        System.exit(1);
+        System.out.println(info);
     }
 :};
 

@@ -119,6 +119,8 @@ abstract public class Absyn
 	  System.out.println( "AssignExp:" );
 	  spaces += SPACES;
       showTree( tree.lhs, spaces );
+      spaces += SPACES;
+      System.out.println(" = ");
       showTree( tree.rhs, spaces );
 	  
   }
@@ -193,6 +195,7 @@ abstract public class Absyn
 	  
 	  indent( spaces );
 	  System.out.println( "NameTy:" );
+	  spaces += SPACES;
 	  indent( spaces );
 	  switch( tree.typ ) {
 		  case NameTy.INT:
@@ -255,7 +258,6 @@ abstract public class Absyn
 	  
 	  indent( spaces );
 	  System.out.println( "ReturnExp:" );
-	  spaces += SPACES;
       showTree( tree.exp, spaces );
 	  
   }
@@ -266,6 +268,7 @@ abstract public class Absyn
 	  System.out.println( "SimpleDec:" );
 	  spaces += SPACES;
       showTree( tree.typ, spaces );
+      spaces += SPACES;
       indent( spaces );
       System.out.println( tree.name );
 	  

@@ -34,9 +34,6 @@ parser.java: tiny.cup
 Main:
 	javac $(CLASSPATH) Main.java
 
-run: Main.class
-	java $(CLASSPATH) Main "cminus_samples/test1.cminus"
-
 clean:
 	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
 
