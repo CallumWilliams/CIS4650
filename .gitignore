@@ -1,2 +1,6 @@
 *.class
 Absyn/*.class
+Lexer.java
+Lexer.java~
+parser.java
+sym.java
