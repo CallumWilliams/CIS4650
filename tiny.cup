@@ -173,13 +173,11 @@ compound_stmt       ::= LCRL local_declarations:d statement_list:s RCRL
 local_declarations  ::= local_declarations:d1 var_declaration:d2
                         {: RESULT = new VarDecList(d2, d1); :}
                       |
-                        /* RESULT = */                                             /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/
                       ;
 
 statement_list      ::= statement_list:s1 statement:s2
                         {: RESULT = new ExpList(s2, s1);  :}
                       |
-                        /* RESULT =  */                                              /*<<<<<<<<<<<<<<<<<<<<<<<<<<<< What goes in the empty spot here?*/
                       ;
 
 statement           ::= expression_stmt:e
@@ -288,7 +286,6 @@ call                ::= ID:i LPAREN args:a RPAREN
 args                ::= arg_list:a
                         {: RESULT = a; :}
                       |
-                        /*{: RESULT = null; :}*/ /*<< is that right? */
                       ;
 
 arg_list            ::= arg_list:e1 COMMA expression:e2
