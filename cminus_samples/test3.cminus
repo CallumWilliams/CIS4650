@@ -1,9 +1,9 @@
 void main(void a) {
 	
-	while (a == null) {
-		print(3);
-	}
+	y = 3;
+	x = 1 + 2;
+	
 	print(2);
-	/*return a;*/
+	return a;
 	
 }

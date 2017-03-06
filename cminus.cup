@@ -56,7 +56,7 @@ parser code {:
        'message' and then exit.*/
     public void report_fatal_error(String message, Object info) {
         report_error(message, info);
-        System.out.println(info);
+        
     }
 :};
 
@@ -163,12 +163,12 @@ compound_stmt       ::= LCRL local_declarations:d statement_list:s RCRL
                         {: RESULT = new CompoundExp(sleft, d, s); :}
                       ;
 
-local_declarations  ::= local_declarations:d1 var_declaration:d2
+local_declarations  ::= var_declaration:d2 local_declarations:d1
                         {: RESULT = new VarDecList(d2, d1); :}
                       |
                       ;
 
-statement_list      ::= statement_list:s1 statement:s2
+statement_list      ::= statement:s2 statement_list:s1
                         {: RESULT = new ExpList(s2, s1);  :}
                       |
                       ;
