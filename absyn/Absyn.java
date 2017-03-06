@@ -90,10 +90,10 @@ abstract public class Absyn
 		showTree( (IfExp)tree, spaces );
 	  else if ( tree instanceof WhileExp )
 		showTree( (WhileExp)tree, spaces );
-	  else if ( tree instanceof ReturnExp )
-		showTree( (ReturnExp)tree, spaces );
 	  else if ( tree instanceof CompoundExp )
 		showTree( (CompoundExp)tree, spaces );
+	  else if ( tree instanceof ReturnExp )
+		showTree( (ReturnExp)tree, spaces );
 	  else {
         indent( spaces );
         /* v crashes code when not commented (NullPointerException) v */
@@ -259,6 +259,7 @@ abstract public class Absyn
 	  
 	  indent( spaces );
 	  System.out.println( "ReturnExp:" );
+	  spaces += SPACES;
       showTree( tree.exp, spaces );
 	  
   }
