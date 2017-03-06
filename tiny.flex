@@ -55,8 +55,6 @@ import java_cup.runtime.*;
     private Symbol symbol(int type, Object value) {
         return new Symbol(type, yyline, yycolumn, value);
     }
-
-    Boolean inComment = false;
 %}
 
 
@@ -96,35 +94,34 @@ identifier = {letter}+
    code, that will be executed when the scanner matches the associated
    regular expression. */
 
-<YYINITIAL> "if"          		{ if(!inComment) return symbol(sym.IF);     }
-<YYINITIAL> "else"        		{ if(!inComment) return symbol(sym.ELSE);   }
-<YYINITIAL> "int"			 	{ if(!inComment) return symbol(sym.INT);    }
-<YYINITIAL> "return"			{ if(!inComment) return symbol(sym.RETURN); }
-<YYINITIAL> "void"   		 	{ if(!inComment) return symbol(sym.VOID);   }
-<YYINITIAL> "while"				{ if(!inComment) return symbol(sym.WHILE);  }
-<YYINITIAL> "<="			    { if(!inComment) return symbol(sym.LTEQ);   }
-<YYINITIAL> ">="			    { if(!inComment) return symbol(sym.GTEQ);   }
-<YYINITIAL> "=="			    { if(!inComment) return symbol(sym.EQLTY);  }
-<YYINITIAL> "!="			    { if(!inComment) return symbol(sym.NTEQ);   }
-<YYINITIAL> ","				    { if(!inComment) return symbol(sym.COMMA);  }
-<YYINITIAL> "["				    { if(!inComment) return symbol(sym.LSQR);   }
-<YYINITIAL> "]"			     	{ if(!inComment) return symbol(sym.RSQR);   }
-<YYINITIAL> "{"			     	{ if(!inComment) return symbol(sym.LCRL);   }
-<YYINITIAL> "}"			     	{ if(!inComment) return symbol(sym.RCRL);   }
-
+<YYINITIAL> "if"          		{ return symbol(sym.IF);     }
+<YYINITIAL> "else"        		{ return symbol(sym.ELSE);   }
+<YYINITIAL> "int"			 	{ return symbol(sym.INT);    }
+<YYINITIAL> "return"			{ return symbol(sym.RETURN); }
+<YYINITIAL> "void"   		 	{ return symbol(sym.VOID);   }
+<YYINITIAL> "while"				{ return symbol(sym.WHILE);  }
+<YYINITIAL> "<="			    { return symbol(sym.LTEQ);   }
+<YYINITIAL> ">="			    { return symbol(sym.GTEQ);   }
+<YYINITIAL> "=="			    { return symbol(sym.EQLTY);  }
+<YYINITIAL> "!="			    { return symbol(sym.NTEQ);   }
+<YYINITIAL> ","				    { return symbol(sym.COMMA);  }
+<YYINITIAL> "["				    { return symbol(sym.LSQR);   }
+<YYINITIAL> "]"			     	{ return symbol(sym.RSQR);   }
+<YYINITIAL> "{"			     	{ return symbol(sym.LCRL);   }
+<YYINITIAL> "}"			     	{ return symbol(sym.RCRL);   }
 <YYINITIAL> "/*"			    { yybegin(CMT); }
-<YYINITIAL> "("                	{ if(!inComment) return symbol(sym.LPAREN); }
-<YYINITIAL> ")"                	{ if(!inComment) return symbol(sym.RPAREN); }
-<YYINITIAL> "="                	{ if(!inComment) return symbol(sym.EQ);     }
-<YYINITIAL> "<"                	{ if(!inComment) return symbol(sym.LT);     }
-<YYINITIAL> ">"                	{ if(!inComment) return symbol(sym.GT);     }
-<YYINITIAL> "+"                	{ if(!inComment) return symbol(sym.PLUS);   }
-<YYINITIAL> "-"                	{ if(!inComment) return symbol(sym.MINUS);  }
-<YYINITIAL> "*"                	{ if(!inComment) return symbol(sym.TIMES);  }
-<YYINITIAL> "/"                	{ if(!inComment) return symbol(sym.OVER);   }
-<YYINITIAL> ";"                	{ if(!inComment) return symbol(sym.SEMI);   }
-<YYINITIAL> {number}           	{ if(!inComment) return symbol(sym.NUM, Integer.parseInt(yytext())); }
-<YYINITIAL> {identifier}       	{ if(!inComment) return symbol(sym.ID, yytext());  }
+<YYINITIAL> "("                	{ return symbol(sym.LPAREN); }
+<YYINITIAL> ")"                	{ return symbol(sym.RPAREN); }
+<YYINITIAL> "="                	{ return symbol(sym.EQ);     }
+<YYINITIAL> "<"                	{ return symbol(sym.LT);     }
+<YYINITIAL> ">"                	{ return symbol(sym.GT);     }
+<YYINITIAL> "-"                	{ return symbol(sym.MINUS);  }
+<YYINITIAL> "+"                	{ return symbol(sym.PLUS);   }
+<YYINITIAL> "*"                	{ return symbol(sym.TIMES);  }
+<YYINITIAL> "/"                	{ return symbol(sym.OVER);   }
+<YYINITIAL> ";"                	{ return symbol(sym.SEMI);   }
+<YYINITIAL> {number}           	{ return symbol(sym.NUM, Integer.parseInt(yytext())); }
+<YYINITIAL> {identifier}       	{ return symbol(sym.ID, yytext());  }
 <YYINITIAL> {WhiteSpace}*      	{ /* skip whitespace */ }
 <YYINITIAL> .                  	{ return symbol(sym.ERROR); }
 
