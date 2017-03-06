@@ -1,103 +1,29 @@
-A JFlex+Cup implementation for the Tiny language.
+------------------------------------------
+README
+Authors: Matthew Goldman, Callum Williams
+For: CIS4650, W17
+------------------------------------------
 
-  Note that you need to modify the classpath in the Makefile so that it
-will point to the directory where "java_cup" is located.  In my own setting,
-classpath is /usr/share/java/cup.jar.
-
-  To build the parser, type "make" in the current directory, which will
-generate an executable program called "tiny".
-
-  To test source code like "gcd.tiny", type
-
-    "java -classpath /usr/share/java/cup.jar:. Main gcd.tiny"
-
-and the syntax tree will be displayed on the screen.
-
-  To rebuild the parser, type "make clean" and type "make" again.
-
-  Also note that all the abstract syntax tree structures are defined under
-the directory "absyn" and within "Absyn.java" class, the showTree function
-is implemented.  In addition, since some java files are generated automatically,
-they may contain variables that are not used, which are safe to ignore in
-the compilation process.
-
-
-
-
-
-	---------------------------------------------------------------------------------------------
-
-	I'm just using the space below as a notepad. Feel free to move it somewhere more appropriate.
-
-    ---------------------------------------------------------------------------------------------
-
-
-
-Installing CUP:
-1) Go to: http://www2.cs.tum.edu/projects/cup/install.php
-2) Download java-cup-bin-11b-whatever.tar.gz
-3) Extract it
-4) Move java-cup-11b.jar to /usr/share/java/
-5) Rename it to cup.jar
-6) Pull the most recent makefile
-
-
-I don't know if the changes I made to the makefile for compiling the cup file are 'correct' but it seems to compile and run
+Note:
+ - the code is based off of the example 'java_tiny' provided on the
+ Courselink.
+ 
 
 Compiling:
-	make all        -does everything
-
-	or
-
-	make Lexer.java       -Lexer
-	make parser.java      -Parser
-	make Main             -Main class
-
-Running:
-	java -classpath /usr/share/java/cup.jar:. Main inputFile
-
-		ex: java -classpath /usr/share/java/cup.jar:. Main "cminus_samples/ex1.cminus"
+1) Navigate to the primary directory of the project.
+2) Type 'make' to compile the whole project, or:
+	a) 'make Lexer.java', to compile the lexer.
+	b) 'make parser.java', to compile the parser.
+	c) 'make Main', to compile the source code.
 
 
+Execution:
+1) When in the primary directory, type:
+	a) 'make test(1-5), to run tests 1-5.
+	*for example, 'make test2' would run the parser on 
+	cminus_samples/test2.cminus*
+	b) java -classpath /usr/share/java/cup.jar:. Main "test-file",
+	to test a custom file.
+	
+Limitations:
 
-
-Update:
-    So..............
-    I sorted out the bug I was talking about last night.
-    I've got the tree building in a somewhat partially complete state.
-    It compiles fine now but it doesn't really run and it sure as hell isn't right.
-
-    Pull it and play with it but we can always go back to an early commit (a blank slate) and try again.
-
-
-    I ran the cminus sample through it and it threw an exception right away, so if you want to start debugging that'd be a good place.
-            --I suspect it's related to the relop, mulop, and addop rules that I have declared as Integers. They might need to be IntExp()s or something but then other things require them as ints so idk
-
-
-    Quick note on what I learned:
-        Each rule that shows up as a variable needs to be declared as a type at the top.
-            For example:
-
-                param_list          ::= param_list:p1 COMMA param:p2
-                                      {: code...
-                                        t.tail = new VarDecList(p2, null);
-                                        ... code :}
-
-
-            We want to use p2 (param) here, so at the top we need to declare its type:
-
-                non terminal VarDec param;
-
-            Now every time you turn a param rule in to a variable, it will be of the abstract type VarDec.
-
-            Then you can pass it to constructors expecting a certain type like above where VerDecList is defined as:
-
-                public VarDecList(VarDec head, VarDecList tail).
-
-
-
-
-
-
-      That seems to be the key thing to take away. I didn't learn that until the very end though so I think we should be able to go through it all and touch up parts that don't make sense.
-      I also fudged VarDec.java a bit but left a comment		
