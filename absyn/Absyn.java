@@ -120,6 +120,7 @@ abstract public class Absyn
 	  spaces += SPACES;
       showTree( tree.lhs, spaces );
       spaces += SPACES;
+      indent( spaces );
       System.out.println(" = ");
       showTree( tree.rhs, spaces );
 	  
