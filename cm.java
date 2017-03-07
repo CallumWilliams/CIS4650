@@ -1,8 +1,18 @@
 import java.io.*;
    
 class cm {
+
+  public static Boolean displayTree = false;
   static public void main(String argv[]) {    
-    /* Start the parser */
+  
+    for(String s : argv)
+    {
+        if(s.equals("-a"))
+        {
+            displayTree = true;
+        }   
+    }
+
     try 
     {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
