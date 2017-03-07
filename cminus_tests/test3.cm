@@ -1,10 +1,10 @@
-/* Test 3 - Commas in function parameters omitted */
+/* Test 3 - Multiple assignment errors */
 
-int functionOne(void b int c int d) { //Error here. Missing the commas
+int functionOne(void b, int c, int d) { 
 	
 	int a;
 	
-	a = c*d;
+	a = c*; /*Error 1 */
 	if (a == 0) return a;
 	else return a + functionOne(b, c-1, d);
 	
@@ -21,7 +21,8 @@ int main(void) {
 	
 	int x[3];
 	x[0] = funcOne(1, 3, 2); 
-	x[1] = functionTwo(1);
+	x[1] =functionTwo(1);
+	x[2] = ; /*Error 2 */
 	
 	return x[0] + x[1];
 }

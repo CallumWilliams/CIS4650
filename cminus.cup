@@ -109,6 +109,11 @@ declaration_list    ::= declaration_list:d1 declaration:d2
                          :}
 					   | declaration:d
 					     {: RESULT = new DecList(d, null); :}
+					   | error declaration:d2
+					     {: 
+					        parser.report_error("invalid", null); 
+					        RESULT = new DecList(d2, null); 
+					        :}
 					   |
 					     {: RESULT = new DecList(null,null); :}
 					   ;
