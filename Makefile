@@ -27,31 +27,31 @@ clean:
 
 #shortcuts for running Checkpoint 1 tests
 test1:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test1.cm"
+	$(JAVA) $(CLASSPATH) cm "tests/1.cm"
 	
 test2:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test2.cm"
+	$(JAVA) $(CLASSPATH) cm "tests/2.cm"
 	
 test3:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test3.cm"
+	$(JAVA) $(CLASSPATH) cm "tests/3.cm"
 	
 test4:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test4.cm"
+	$(JAVA) $(CLASSPATH) cm "tests/4.cm"
 	
 test5:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test5.cm"
+	$(JAVA) $(CLASSPATH) cm "tests/5.cm"
 
 test1-tree:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test1.cm" -a
+	$(JAVA) $(CLASSPATH) cm "tests/1.cm" -a
 	
 test2-tree:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test2.cm" -a
+	$(JAVA) $(CLASSPATH) cm "tests/2.cm" -a
 	
 test3-tree:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test3.cm" -a
+	$(JAVA) $(CLASSPATH) cm "tests/3.cm" -a
 	
 test4-tree:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test4.cm" -a
+	$(JAVA) $(CLASSPATH) cm "tests/4.cm" -a
 	
 test5-tree:
-	$(JAVA) $(CLASSPATH) cm "cminus_tests/test5.cm" -a
+	$(JAVA) $(CLASSPATH) cm "tests/5.cm" -a

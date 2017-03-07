@@ -1,9 +1,7 @@
-/* Test 5 - */
+/* Test 2 - This file has an invalid 'fun_declaraction'. The function name was omittied  */
 
 int functionOne(void b, int c, int d) {
 	
-
-	 
 	int a;
 	
 	a = c*d;
@@ -11,12 +9,11 @@ int functionOne(void b, int c, int d) {
 	else return a + functionOne(b, c-1, d);
 	
 }
-
-void functionTwo(int count) {
+ 
+void (int count) { /* Error here. Function name omitted. */
 
     while (1 >= 0) {
 	    output(count);
-	    /* This is a comment that I forgot to close
 	    count = count + 1;
 }}
 

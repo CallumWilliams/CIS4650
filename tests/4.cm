@@ -1,4 +1,4 @@
-/* Test 4 - Assignment operator reversed*/
+/* Test 4 - This file has an invalid 'relop'. The '>=' was writted as '=>'  */
 
 int functionOne(void b, int c, int d) {
 	
@@ -12,7 +12,7 @@ int functionOne(void b, int c, int d) {
 
 void functionTwo(int count) {
 
-    while (1 >= 0) {
+    while (1 => 0) {   /* Error Here. Invalid operator */
 	    output(count);
 	    count = count + 1;
 }}

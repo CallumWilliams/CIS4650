@@ -1,19 +1,22 @@
-/* Test 2 - Function name omitted */
+/* Test 2 - This file has a typo in the operator and an unclosed comment */
 
 int functionOne(void b, int c, int d) {
 	
+
+	 
 	int a;
 	
 	a = c*d;
-	if (a == 0) return a;
+	if (a = = 0) return a;   /* Error here. */
 	else return a + functionOne(b, c-1, d);
 	
 }
- 
-void (int count) { //Error here. Function name omitted
+
+void functionTwo(int count) {
 
     while (1 >= 0) {
 	    output(count);
+	    /* This is a comment that I forgot to close        Error Here
 	    count = count + 1;
 }}
 
