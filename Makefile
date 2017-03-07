@@ -20,23 +20,23 @@ parser.java: cminus.cup
 	$(CUP) cminus.cup -dump -expect 3 
 	
 cm.java: 
-	javac $(CLASSPATH) $(MAIN)
+	$(JAVAC) $(CLASSPATH) $(MAIN)
 
 clean:
 	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
 
 #shortcuts for running Checkpoint 1 tests
 test1:
-	java $(CLASSPATH) cm "cminus_tests/test1.cm"
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test1.cm"
 	
 test2:
-	java $(CLASSPATH) cm "cminus_tests/test2.cm"
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test2.cm"
 	
 test3:
-	java $(CLASSPATH) cm "cminus_tests/test3.cm"
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test3.cm"
 	
 test4:
-	java $(CLASSPATH) cm "cminus_tests/test4.cm"
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test4.cm"
 	
 test5:
-	java $(CLASSPATH) cm "cminus_tests/test5.cm"
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test5.cm"
