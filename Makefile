@@ -27,16 +27,16 @@ clean:
 
 #shortcuts for running Checkpoint 1 tests
 test1:
-	java $(CLASSPATH) cm "cminus_samples/test1.cminus"
+	java $(CLASSPATH) cm "cminus_tests/test1.cm"
 	
 test2:
-	java $(CLASSPATH) cm "cminus_samples/test2.cminus"
+	java $(CLASSPATH) cm "cminus_tests/test2.cm"
 	
 test3:
-	java $(CLASSPATH) cm "cminus_samples/test3.cminus"
+	java $(CLASSPATH) cm "cminus_tests/test3.cm"
 	
 test4:
-	java $(CLASSPATH) cm "cminus_samples/test4.cminus"
+	java $(CLASSPATH) cm "cminus_tests/test4.cm"
 	
 test5:
-	java $(CLASSPATH) cm "cminus_samples/test5.cminus"
+	java $(CLASSPATH) cm "cminus_tests/test5.cm"

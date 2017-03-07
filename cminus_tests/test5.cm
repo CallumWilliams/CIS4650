@@ -1,0 +1,30 @@
+/* Test 5 - */
+
+int functionOne(void b, int c, int d) {
+	
+
+	 
+	int a;
+	
+	a = c*d;
+	if (a == 0) return a;
+	else return a + functionOne(b, c-1, d);
+	
+}
+
+void functionTwo(int count) {
+
+    while (1 >= 0) {
+	    output(count);
+	    /* This is a comment that I forgot to close
+	    count = count + 1;
+}}
+
+int main(void) {
+	
+	int x[3];
+	x[0] = funcOne(1, 3, 2); 
+	x[1] = functionTwo(1);
+	
+	return x[0] + x[1];
+}

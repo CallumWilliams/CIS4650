@@ -94,37 +94,38 @@ identifier = {letter}+
    code, that will be executed when the scanner matches the associated
    regular expression. */
 
-<YYINITIAL> "if"          		{ return symbol(sym.IF);     }
-<YYINITIAL> "else"        		{ return symbol(sym.ELSE);   }
-<YYINITIAL> "int"			 	{ return symbol(sym.INT);    }
-<YYINITIAL> "return"			{ return symbol(sym.RETURN); }
-<YYINITIAL> "void"   		 	{ return symbol(sym.VOID);   }
-<YYINITIAL> "while"				{ return symbol(sym.WHILE);  }
-<YYINITIAL> "<="			    { return symbol(sym.LTEQ);   }
-<YYINITIAL> ">="			    { return symbol(sym.GTEQ);   }
-<YYINITIAL> "=="			    { return symbol(sym.EQLTY);  }
-<YYINITIAL> "!="			    { return symbol(sym.NTEQ);   }
-<YYINITIAL> ","				    { return symbol(sym.COMMA);  }
-<YYINITIAL> "["				    { return symbol(sym.LSQR);   }
-<YYINITIAL> "]"			     	{ return symbol(sym.RSQR);   }
-<YYINITIAL> "{"			     	{ return symbol(sym.LCRL);   }
-<YYINITIAL> "}"			     	{ return symbol(sym.RCRL);   }
-<YYINITIAL> "/*"			    { yybegin(CMT); }
-<YYINITIAL> "("                	{ return symbol(sym.LPAREN); }
-<YYINITIAL> ")"                	{ return symbol(sym.RPAREN); }
-<YYINITIAL> "="                	{ return symbol(sym.EQ);     }
-<YYINITIAL> "<"                	{ return symbol(sym.LT);     }
-<YYINITIAL> ">"                	{ return symbol(sym.GT);     }
-<YYINITIAL> "-"                	{ return symbol(sym.MINUS);  }
-<YYINITIAL> "+"                	{ return symbol(sym.PLUS);   }
-<YYINITIAL> "*"                	{ return symbol(sym.TIMES);  }
-<YYINITIAL> "/"                	{ return symbol(sym.OVER);   }
-<YYINITIAL> ";"                	{ return symbol(sym.SEMI);   }
-<YYINITIAL> {number}           	{ return symbol(sym.NUM, Integer.parseInt(yytext())); }
-<YYINITIAL> {identifier}       	{ return symbol(sym.ID, yytext());  }
-<YYINITIAL> {WhiteSpace}*      	{ /* skip whitespace */ }
-<YYINITIAL> .                  	{ return symbol(sym.ERROR); }
+<YYINITIAL> "if"                { return symbol(sym.IF);     }
+<YYINITIAL> "else"              { return symbol(sym.ELSE);   }
+<YYINITIAL> "int"               { return symbol(sym.INT);    }
+<YYINITIAL> "return"            { return symbol(sym.RETURN); }
+<YYINITIAL> "void"              { return symbol(sym.VOID);   }
+<YYINITIAL> "while"             { return symbol(sym.WHILE);  }
+<YYINITIAL> "<="                { return symbol(sym.LTEQ);   }
+<YYINITIAL> ">="                { return symbol(sym.GTEQ);   }
+<YYINITIAL> "=="                { return symbol(sym.EQLTY);  }
+<YYINITIAL> "!="                { return symbol(sym.NTEQ);   }
+<YYINITIAL> ","                 { return symbol(sym.COMMA);  }
+<YYINITIAL> "["                 { return symbol(sym.LSQR);   }
+<YYINITIAL> "]"                 { return symbol(sym.RSQR);   }
+<YYINITIAL> "{"                 { return symbol(sym.LCRL);   }
+<YYINITIAL> "}"                 { return symbol(sym.RCRL);   }
+<YYINITIAL> "/*"                { yybegin(CMT); }
+<YYINITIAL> "("                 { return symbol(sym.LPAREN); }
+<YYINITIAL> ")"                 { return symbol(sym.RPAREN); }
+<YYINITIAL> "="                 { return symbol(sym.EQ);     }
+<YYINITIAL> "<"                 { return symbol(sym.LT);     }
+<YYINITIAL> ">"                 { return symbol(sym.GT);     }
+<YYINITIAL> "-"                 { return symbol(sym.MINUS);  }
+<YYINITIAL> "+"                 { return symbol(sym.PLUS);   }
+<YYINITIAL> "*"                 { return symbol(sym.TIMES);  }
+<YYINITIAL> "/"                 { return symbol(sym.OVER);   }
+<YYINITIAL> ";"                 { return symbol(sym.SEMI);   }
+<YYINITIAL> {number}            { return symbol(sym.NUM, Integer.parseInt(yytext())); }
+<YYINITIAL> {identifier}        { return symbol(sym.ID, yytext());  }
+<YYINITIAL> {WhiteSpace}*       { /* skip whitespace */ }
+<YYINITIAL> .                { System.err.println("Syntax error at line " + yyline);  
+                                 return symbol(sym.ERROR); }
 
-<CMT> "*/"			   			{ yybegin(YYINITIAL); }
-<CMT> {WhiteSpace}*				{ /* ignore */ }
-<CMT> .            				{ /* ignore */ }
+<CMT> "*/"                      { yybegin(YYINITIAL); }
+<CMT> {WhiteSpace}*             { /* ignore */ }
+<CMT> .                         { /* ignore */ }
