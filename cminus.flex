@@ -123,8 +123,8 @@ identifier = {letter}+
 <YYINITIAL> {number}            { return symbol(sym.NUM, Integer.parseInt(yytext())); }
 <YYINITIAL> {identifier}        { return symbol(sym.ID, yytext());  }
 <YYINITIAL> {WhiteSpace}*       { /* skip whitespace */ }
-<YYINITIAL> .                { System.err.println("Syntax error at line " + yyline);  
-                                 return symbol(sym.ERROR); }
+<YYINITIAL> .                   { System.err.println("Syntax error at line " + yyline + " column " + yycolumn + ". Unexpected: '" + yytext() + "'.");  
+                                 return symbol(sym.ERROR);}
 
 <CMT> "*/"                      { yybegin(YYINITIAL); }
 <CMT> {WhiteSpace}*             { /* ignore */ }

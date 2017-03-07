@@ -1,4 +1,4 @@
-/* Test 2 - This file has a typo in the operator and an unclosed comment */
+/* Test 2 - This file has a typo in the operator, a syntax error, and an unclosed comment */
 
 int functionOne(void b, int c, int d) {
 	
@@ -6,6 +6,7 @@ int functionOne(void b, int c, int d) {
 	 
 	int a;
 	
+	a = a % 5; /* Syntax error. % is not in the lagnuage */
 	a = c*d;
 	if (a = = 0) return a;   /* Error here. */
 	else return a + functionOne(b, c-1, d);
