@@ -40,3 +40,18 @@ test4:
 	
 test5:
 	$(JAVA) $(CLASSPATH) cm "cminus_tests/test5.cm"
+
+test1-tree:
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test1.cm" -a
+	
+test2-tree:
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test2.cm" -a
+	
+test3-tree:
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test3.cm" -a
+	
+test4-tree:
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test4.cm" -a
+	
+test5-tree:
+	$(JAVA) $(CLASSPATH) cm "cminus_tests/test5.cm" -a
