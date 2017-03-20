@@ -41,7 +41,9 @@ abstract public class Absyn
 	  
     if( tree instanceof FunctionDec )
       showTree( (FunctionDec)tree, spaces );
-    else {
+    else if ( tree instanceof VarDec )
+		showTree( (VarDec)tree, spaces );
+	else {
       indent( spaces );
       System.out.println( "Illegal expression at line " + tree.pos  );
     }
@@ -109,7 +111,7 @@ abstract public class Absyn
       showTree( tree.typ, spaces );
       indent( spaces );
       System.out.println( tree.name );
-      showTree( tree.size, spaces );
+      if ( tree.size != null) showTree( tree.size, spaces );
 	  
   }
   

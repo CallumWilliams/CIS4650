@@ -163,7 +163,8 @@ param_list          ::= param_list:p1 COMMA param:p2
 param               ::= type_specifier:t ID:i
                          {: RESULT = new SimpleDec(tleft, t, i); :}
                       | type_specifier:t ID:i LSQR RSQR
-                         {: RESULT = new SimpleDec(tleft, t, i); :}
+                         {: RESULT = new ArrayDec(tleft, t, i, null);
+                         System.out.println("Array dec " + i);:}
                       ;
 
 compound_stmt       ::= LCRL local_declarations:d statement_list:s RCRL
