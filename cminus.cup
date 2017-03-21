@@ -128,9 +128,15 @@ declaration         ::= var_declaration:v
                       ;
 
 var_declaration 	::= type_specifier:t ID:i SEMI
-                        {: RESULT = new SimpleDec(tleft, t, i); :}
+                        {: 	RESULT = new SimpleDec(tleft, t, i);
+							if (t.typ == 0) cm.int_list.add(i);
+							else if (t.typ == 1) cm.void_list.add(i);
+                        :}
 					  | type_specifier:t ID:i LSQR NUM:n RSQR SEMI
-					    {: RESULT = new ArrayDec(tleft, t, i, new IntExp(ileft, n)); :}
+					    {: 	RESULT = new ArrayDec(tleft, t, i, new IntExp(ileft, n));
+							if (t.typ == 0) cm.int_list.add(i);
+							if (t.typ == 1) cm.void_list.add(i);
+					    :}
 					  ;
 
 type_specifier      ::= INT:i
@@ -161,10 +167,15 @@ param_list          ::= param_list:p1 COMMA param:p2
                       ;
 
 param               ::= type_specifier:t ID:i
-                         {: RESULT = new SimpleDec(tleft, t, i); :}
+                         {: RESULT = new SimpleDec(tleft, t, i);
+							if (t.typ == 0) cm.int_list.add(i);
+							else if (t.typ == 1) cm.void_list.add(i);
+                         :}
                       | type_specifier:t ID:i LSQR RSQR
                          {: RESULT = new ArrayDec(tleft, t, i, null);
-                         System.out.println("Array dec " + i);:}
+							if (t.typ == 0) cm.int_list.add(i);
+							else if (t.typ == 1) cm.void_list.add(i);
+                         :}
                       ;
 
 compound_stmt       ::= LCRL local_declarations:d statement_list:s RCRL

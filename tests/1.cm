@@ -3,6 +3,7 @@
 int functionOne(void b, int c, int d) {
 	
 	int a;
+	void b;
 	
 	a = c*d;
 	if (a == 0) return a;
