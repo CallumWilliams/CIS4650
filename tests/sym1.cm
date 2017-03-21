@@ -1,0 +1,30 @@
+int globalVarONE;
+void globalVarTWO;
+
+void functionOne(int a, int bArray[], void c) 
+{
+    int localVarONEa;
+    int lovalVarONEb;
+    
+    if(1 == 1)
+    {
+        int superinnervar;
+    }  
+
+}
+
+/*
+void functionTwo(int twoA, int twoB)
+{
+    int localVarTWOa;
+    int localVarTWOb;
+}
+
+void functionThree(int threeA, void threeB)
+{
+    void localVarTHREEa;
+    int localVarTHREEb;
+    void localVarTHREEc;
+    int localVarTHREEd;
+}
+*/

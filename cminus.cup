@@ -3,6 +3,7 @@
 /* Import the class java_cup.runtime.*  */
 //import java_cup.runtime.*;
 import absyn.*;
+import SymbolTable.*;
 
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
@@ -97,6 +98,8 @@ program		        ::= declaration_list:d
 						    System.out.println("Tree");
 						    Absyn.showTree(RESULT, 0);
 						 }
+						 TableGenerator.generateTable(RESULT, 0, cm.displaySymbolTable);
+
                       :}
                       ;
 

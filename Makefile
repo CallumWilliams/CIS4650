@@ -8,7 +8,7 @@ CUP=$(JAVA) $(CLASSPATH) java_cup.Main <
 
 all: cm.class
 
-cm.class: absyn/*.java parser.java sym.java Lexer.java cm.java
+cm.class: absyn/*.java SymbolTable/*.java parser.java sym.java Lexer.java cm.java
 
 %.class: %.java
 	$(JAVAC) $(CLASSPATH)  $^
@@ -18,12 +18,18 @@ Lexer.java: cminus.flex
 
 parser.java: cminus.cup
 	$(CUP) cminus.cup -dump -expect 3 
+
+table:
+	$(JAVAC) HashTable/*.java
 	
 cm.java: 
 	$(JAVAC) $(CLASSPATH) $(MAIN)
+	
+	
+	
 
 clean:
-	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
+	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~ SymbolTable/*.class *~
 
 #shortcuts for running Checkpoint 1 tests
 test1:

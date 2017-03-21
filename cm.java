@@ -1,9 +1,11 @@
 import java.io.*;
 import java.util.*;
-class cm {
+
+
+public class cm {
 
   public static Boolean displayTree = false;
-  public static Boolean displaySmybolTable = false;
+  public static Boolean displaySymbolTable = false;
   
   public static HashMap<String, ArrayList<String>> hm = new HashMap<String, ArrayList<String>>();
   public static ArrayList<String> int_list = new ArrayList<String>();
@@ -14,17 +16,17 @@ class cm {
     for(String s : argv)
     {
         if(s.equals("-a")) displayTree = true;
-        else if (s.equals("-s")) displaySmybolTable = true;
+        else if (s.equals("-s")) displaySymbolTable = true;
     }
 
     try 
     {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Object result = p.parse().value;
-      hm.put("int", int_list);
-      hm.put("void", void_list);
-      System.out.println(hm.keySet().toString());
-      System.out.println(hm.values().toString());
+     // hm.put("int", int_list);
+     // hm.put("void", void_list);
+     // System.out.println(hm.keySet().toString());
+     // System.out.println(hm.values().toString());
 
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */
