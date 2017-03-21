@@ -56,7 +56,8 @@ public class SymTable
             Entry e = (Entry)entry.getValue();
             Integer type = e.type;
             Integer scope = e.scope;
-            System.out.println("[" + key + ", " + type + ", " + scope + "]");
+            if (type == 0) System.out.println("[" + key + ", INT, " + scope + "]");
+            else if (type == 1) System.out.println("[" + key + ", VOID, " + scope + "]");
         }
         System.out.println("*********************");
     

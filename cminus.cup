@@ -98,7 +98,11 @@ program		        ::= declaration_list:d
 						    System.out.println("Tree");
 						    Absyn.showTree(RESULT, 0);
 						 }
-						 TableGenerator.generateTable(RESULT, 0, cm.displaySymbolTable);
+						 
+						 if (cm.displaySymbolTable) {
+							System.out.println("Symbol Table");
+							TableGenerator.generateTable(RESULT, 0, cm.displaySymbolTable);
+						 }
 
                       :}
                       ;

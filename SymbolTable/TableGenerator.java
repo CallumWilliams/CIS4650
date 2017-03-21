@@ -155,8 +155,8 @@ public class TableGenerator
 	  scope++;
 	  System.out.println("ENTERING SCOPE " + scope);
 	  spaces += SPACES;
-	  //generateTable( tree.decs, spaces );
-      //generateTable( tree.exps, spaces );
+	  generateTable( tree.decs, spaces );
+      generateTable( tree.exps, spaces );
       leaveScope();
  	  System.out.println("EXITED SCOPE " + (scope+1) );
       
