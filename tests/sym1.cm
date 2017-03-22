@@ -10,11 +10,17 @@ void functionOne(int a, int bArray[], void c)
     if(1 == 1)
     {
         int superinnervar;
+        void globalVarONE;
+        if(2 == 2)
+        {
+            void globalVarONE;
+        
+        }
     }  
 
 }
 
-/*
+
 void functionTwo(int twoA, int twoB)
 {
     int localVarTWOa;
@@ -28,4 +34,4 @@ void functionThree(int threeA, void threeB)
     void localVarTHREEc;
     int localVarTHREEd;
 }
-*/
+

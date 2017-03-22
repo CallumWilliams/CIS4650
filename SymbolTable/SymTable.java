@@ -3,6 +3,9 @@ package SymbolTable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.AbstractMap.SimpleEntry;
 
 public class SymTable
 {
@@ -50,20 +53,53 @@ public class SymTable
     
     public static void removeScope(int scope)
     {
-
+        class Pair
+        {
+            String name;
+            Entry e;
+        }
+        List<Pair> toAdd = new ArrayList<Pair>();
+        
+        
         Iterator entries = hashMap.entrySet().iterator();
         while (entries.hasNext()) 
         {
             Map.Entry mapEntry = (Map.Entry) entries.next();
             String key = (String)mapEntry.getKey();
             Entry e = (Entry)mapEntry.getValue();
-            while( e != null)
-            {       
-                if(e.scope == scope)
-                    entries.remove();  
+            
+            if(e.scope == scope)
+            {
+                Pair p = new Pair();
+                p.name = key;
+                p.e = e.next;
+                toAdd.add(p);
+                entries.remove();
+            }
+            else
+            {
+                Entry prev = e;
                 e = e.next;
+                while( e != null)
+                {       
+                    if(e.scope == scope)
+                    {
+                        prev.next = e.next;
+                        
+                    }  
+                    prev = e;
+                    e = e.next; 
+                }
             }
         }
+        
+        for( Pair p : toAdd)
+        {
+            if(p.e != null)
+                hashMap.put(p.name, p.e);
+        }
+        
+        
     }
     
     

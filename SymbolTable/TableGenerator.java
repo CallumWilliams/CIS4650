@@ -178,8 +178,9 @@ public class TableGenerator
        
       if (drawTable) System.out.println("ADDING FUNCTION: " + tree.func);
       SymTable.insert(tree.func, tree.result.typ, scope);
-   //   scope++; 
+      scope++; 
       generateTable( tree.params, spaces );
+      scope--;
       generateTable( tree.body, spaces );
    //   leaveScope();
   
