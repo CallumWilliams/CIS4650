@@ -12,12 +12,39 @@ public class SymTable
     public static void insert(String name, int type, int scope)
     {
         Entry entry = new Entry(type, scope, null);
-        hashMap.put(name, entry);
+        
+        Entry existingEntry = lookup(name);
+        
+        if(existingEntry == null)
+        {
+            hashMap.put(name, entry);
+        }
+        else
+        {
+            entry.next = existingEntry;
+            hashMap.put(name, entry);
+        }
+
     }    
     
     public static Entry lookup(String name)
     {
-        return hashMap.get(name);
+        int maxScope = -1;
+        Entry maxEntry = null;
+        
+        Entry e = hashMap.get(name);
+        if(e == null) return null;
+            
+        while(e != null)
+        {
+            if(e.scope > maxScope)
+            {
+                maxScope = e.scope;
+                maxEntry = e;
+            }
+            e = e.next;
+        }
+        return maxEntry;
     }
     
     
@@ -54,15 +81,17 @@ public class SymTable
             Map.Entry entry = (Map.Entry) entries.next();
             String key = (String)entry.getKey();
             Entry e = (Entry)entry.getValue();
-            Integer type = e.type;
-            Integer scope = e.scope;
-            if (type == 0) {
-				TableGenerator.indent(TableGenerator.SPACES*scope);
-				System.out.println("[" + key + ", INT]");
-            } else if (type == 1) {
-				TableGenerator.indent(TableGenerator.SPACES*scope);
-				System.out.println("[" + key + ", VOID]");
-			}
+            while(e != null)
+            {
+                Integer type = e.type;
+                Integer scope = e.scope;
+                if (type == 0) System.out.print("[" + key + ", INT, " + scope + "] =>");
+                else if (type == 1) System.out.print("[" + key + ", VOID, " + scope + "] =>");
+                e = e.next;
+            }
+            System.out.println("");
+ 
+
         }
         System.out.println("*********************");
     
