@@ -5,6 +5,7 @@ void functionOne(int a, int bArray[], void c)
 {
     int localVarONEa;
     int lovalVarONEb;
+    void globalVarONE;
     
     if(1 == 1)
     {

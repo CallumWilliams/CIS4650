@@ -85,12 +85,15 @@ public class SymTable
             {
                 Integer type = e.type;
                 Integer scope = e.scope;
-                if (type == 0) System.out.print("[" + key + ", INT, " + scope + "] =>");
-                else if (type == 1) System.out.print("[" + key + ", VOID, " + scope + "] =>");
+                if (type == 0) {
+					TableGenerator.indent(TableGenerator.SPACES*scope);
+					System.out.println("[" + key + ", INT]");
+                } else if (type == 1) {
+					TableGenerator.indent(TableGenerator.SPACES*scope);
+					System.out.println("[" + key + ", VOID]");
+				}
                 e = e.next;
             }
-            System.out.println("");
- 
 
         }
         System.out.println("*********************");
