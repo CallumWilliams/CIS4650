@@ -1,31 +1,29 @@
-/* Test 2 - This file has a typo in the operator, a syntax error, and an unclosed comment */
+/* Test 1 - no errors */
 
 int functionOne(void b, int c, int d) {
 	
-
-	 
 	int a;
+	void b;
 	
-	a = a % 5; /* Syntax error. % is not in the lagnuage */
 	a = c*d;
-	if (a = = 0) return a;   /* Error here. */
+	if (b) return a;
 	else return a + functionOne(b, c-1, d);
 	
 }
 
 void functionTwo(int count) {
 
-    while (1 >= 0) {
-	    output(count);
-	    /* This is a comment that I forgot to close        Error Here
+    while (count <= 10) {
 	    count = count + 1;
-}}
+	}
+	return;
+}
 
 int main(void) {
 	
 	int x[3];
-	x[0] = funcOne(1, 3, 2); 
-	x[1] = functionTwo(1);
+	x[0] = functionOne(1, 3, 2); 
+	functionTwo(x[1]);
 	
 	return x[0] + x[1];
 }

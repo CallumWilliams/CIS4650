@@ -139,7 +139,7 @@ public class TableGenerator
      // System.out.println("(AssignExp) LHS: " + LHS + " RHS: " + RHS); //just debugging
       if (LHS != RHS) 
       {
-        errorMessage(tree.pos,"Type mismatch.", LHS, RHS);
+        errorMessage(tree.pos,"Type mismatch", LHS, RHS);
         return -1;
       }
       return LHS;
@@ -162,7 +162,7 @@ public class TableGenerator
       if(e == null)
       {
         System.out.println("");
-        System.out.println("Error:  Line " + tree.pos + ". Symbol '" + tree.func + "' not defined.");
+        System.out.println("Error:  Line " + (tree.pos+1) + ". Symbol '" + tree.func + "' not defined.");
         return -1;
       }
       else
@@ -224,10 +224,13 @@ public class TableGenerator
    // indent( spaces );
    // System.out.println( "IfExp:" );
       spaces += SPACES;
-      generateTable( tree.test, spaces );
+      int TEST = generateTable( tree.test, spaces );
       generateTable( tree.thenpart, spaces );
-      generateTable( tree.elsepart, spaces );
-      return 0;
+      int TEST_ELSE = generateTable( tree.elsepart, spaces );
+      
+      if (TEST == 0 && TEST_ELSE == 0) return 0;
+      System.out.println("Error: Line " + (tree.pos+1) + ". Condition not of type int");
+      return -1;
       
   }
   
@@ -239,15 +242,21 @@ public class TableGenerator
    // indent( spaces );
    // System.out.println( tree.name );
    
-      generateTable( tree.index, spaces );
+      int INDEX = generateTable( tree.index, spaces );
    //   if (SymTable.hashMap.containsValue(tree.name)) return SymTable.hashMap.get(tree.name).type;
    //   return -1; //fail case
-   
+	  
+	  if (INDEX != 0)
+	  {
+		  System.out.println("");
+		  System.out.println("Error: Line " + (tree.pos+1) + ". Index for'" + tree.name + "' not int.");
+	  }
+	  
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
       {
         System.out.println("");
-        System.out.println("Error: Line " + tree.pos + ". Symbol '" + tree.name + "' not defined.");
+        System.out.println("Error: Line " + (tree.pos+1) + ". Symbol '" + tree.name + "' not defined.");
         return -1;
       }
       else
@@ -332,7 +341,7 @@ public class TableGenerator
     int LHS = generateTable( tree.left, spaces );
     int RHS = generateTable( tree.right, spaces );
     
-   // System.out.println("(OpExp) LHS: " + LHS + " RHS: " + RHS);
+    //System.out.println("Line " + (tree.pos+1) + " (OpExp) LHS: " + LHS + " RHS: " + RHS);
     if (LHS != RHS) 
     {
         errorMessage(tree.pos, "Type mismatch", LHS, RHS);
@@ -351,11 +360,11 @@ public class TableGenerator
       if (tree.exp == null) 
         returnType = 1; //return statement is void
       else 
-        returnType = 0; //return generateTable(tree.exp, spaces);
+        returnType = generateTable(tree.exp, spaces);
         
       if(returnType != expectedReturn)
       {
-        System.err.println("Error: Line " + tree.pos + ". Invalid return type.");
+        System.err.println("Error: Line " + (tree.pos+1) + ". Invalid return type.");
       }
       
       return returnType;
@@ -391,7 +400,7 @@ public class TableGenerator
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
       {
-        System.out.println("Error: Line " + tree.pos + ". Symbol '" + tree.name + "' not defined.");
+        System.out.println("Error: Line " + (tree.pos+1) + ". Symbol '" + tree.name + "' not defined.");
         return -1;
       }
       else
@@ -437,12 +446,13 @@ public class TableGenerator
   {
         if(LHS == -1 || RHS == -1) return;
         System.err.println("");
-        System.err.print("Error: Line " + line + " " + message + ". Expected type ");
+        System.err.print("Error: Line " + (line+1) + " " + message + ". Expected type ");
         if(LHS == 0) System.err.print("INT");
         if(LHS == 1) System.err.print("VOID");
-        System.err.print(" instead received ");
+        System.err.print(", received ");
         if(RHS == 0) System.err.println("INT.");
         if(RHS == 1) System.err.println("VOID.");
+        System.err.println("");
   }
 
 

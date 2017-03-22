@@ -1,28 +1,29 @@
-/* Test 3 - This file has 2 invalid AssignExp. The expressions are missing elements.  */
+/* Test 1 - x array in main() not declared */
 
-int functionOne(void b, int c, int d) { 
+int functionOne(void b, int c, int d) {
 	
 	int a;
+	void b;
 	
-	a = c*;                         /*Error 1 */
+	a = c*d;
 	if (a == 0) return a;
 	else return a + functionOne(b, c-1, d);
 	
 }
- 
-void functionTwo (int count) { 
 
-    while (1 >= 0) {
-	    output(count);
+void functionTwo(int count) {
+
+    while (count <= 10) {
 	    count = count + 1;
-}}
+	}
+	return;
+}
 
 int main(void) {
 	
-	int x[3];
-	x[0] = funcOne(1, 3, 2); 
-	x[1] =functionTwo(1);
-	x[2] = ;                        /*Error 2 */
+	/* int x[3]; */
+	x[0] = functionOne(1, 3, 2); 
+	functionTwo(x[1]);
 	
 	return x[0] + x[1];
 }
