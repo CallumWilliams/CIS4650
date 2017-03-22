@@ -54,13 +54,15 @@ public class SymTable
         Iterator entries = hashMap.entrySet().iterator();
         while (entries.hasNext()) 
         {
-            Map.Entry entry = (Map.Entry) entries.next();
-            String key = (String)entry.getKey();
-            Entry e = (Entry)entry.getValue();
-            Integer type = e.type;
-            Integer entryScope = e.scope;
-            if(entryScope == scope)
-                entries.remove();
+            Map.Entry mapEntry = (Map.Entry) entries.next();
+            String key = (String)mapEntry.getKey();
+            Entry e = (Entry)mapEntry.getValue();
+            while( e != null)
+            {       
+                if(e.scope == scope)
+                    entries.remove();  
+                e = e.next;
+            }
         }
     }
     
