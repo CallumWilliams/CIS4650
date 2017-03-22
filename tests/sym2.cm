@@ -1,5 +1,19 @@
-int functionONE(int a)
+int b;
+void functionONE(int varC)
 {
+    int a;
+
+    return b;
+}
 
 
+
+void functionTWO(void)
+{
+    void b;
+    a = 10;
+    
+    b = (99 + 66);
+
+    return 10 * 80 + b;
 }

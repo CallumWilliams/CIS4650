@@ -9,7 +9,6 @@ import java.util.AbstractMap.SimpleEntry;
 
 public class SymTable
 {
-    // <HashedName, Type, Scope>
     static HashMap<String, Entry> hashMap = new HashMap<String, Entry>();
     
     public static void insert(String name, int type, int scope)
@@ -102,14 +101,7 @@ public class SymTable
         
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
+
     public static void print()
     {
         System.out.println("*********************");
