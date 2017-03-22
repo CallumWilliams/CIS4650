@@ -12,7 +12,7 @@ public class TableGenerator
 
   final static int SPACES = 4;
 
-  static private void indent( int spaces ) {
+  static public void indent( int spaces ) {
     for( int i = 0; i < spaces; i++ )  System.out.print( " " );
   }
   
@@ -153,12 +153,12 @@ public class TableGenerator
 	//indent( spaces );
 	//System.out.println( "CompoundExp:" );
 	  scope++;
-	  System.out.println("ENTERING SCOPE " + scope);
+	  if (drawTable) System.out.println("ENTERING SCOPE " + scope);
 	  spaces += SPACES;
 	  generateTable( tree.decs, spaces );
       generateTable( tree.exps, spaces );
       leaveScope();
- 	  System.out.println("EXITED SCOPE " + (scope+1) );
+ 	  if (drawTable) System.out.println("EXITED SCOPE " + (scope+1) );
       
 	  
   }
@@ -172,11 +172,11 @@ public class TableGenerator
 	  generateTable( tree.result, spaces );
    // indent( spaces );
    // System.out.println( tree.func );
-      generateTable( tree.params, spaces );
-      generateTable( tree.body, spaces );
+   // generateTable( tree.params, spaces );
+   // generateTable( tree.body, spaces );
       
        
-      System.out.println("ADDING FUNCTION: " + tree.func);
+      if (drawTable) System.out.println("ADDING FUNCTION: " + tree.func);
       SymTable.insert(tree.func, tree.result.typ, scope);
    //   scope++; 
       generateTable( tree.params, spaces );
