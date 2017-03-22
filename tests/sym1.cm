@@ -16,7 +16,9 @@ void functionOne(int a, int bArray[], void c)
             void globalVarONE;
         
         }
-    }  
+    }
+    
+    return;  
 
 }
 
