@@ -21,6 +21,8 @@ public class TableGenerator
   static public void generateTable( DecList tree, int spaces, Boolean draw ) {
       
       drawTable = draw;
+      SymTable.insert("input", 0, 0);
+      SymTable.insert("output", 1, 0);
       while (tree != null) {
           generateTable( tree.head, spaces );
           tree = tree.tail;
@@ -53,8 +55,6 @@ public class TableGenerator
     else if ( tree instanceof VarDec )
         generateTable( (VarDec)tree, spaces );
     else {
-      // indent( spaces );
-      // System.out.println( "Illegal expression at line " + tree.pos  );
     }
     
   }
@@ -66,8 +66,6 @@ public class TableGenerator
       else if ( tree instanceof ArrayDec )
         generateTable( (ArrayDec)tree, spaces );
       else {
-        // indent( spaces );
-        // System.out.println( "Illegal expression at line " + tree.pos  );
       }
       
   }
@@ -109,34 +107,23 @@ public class TableGenerator
       }
   }
   
-  static private void generateTable( ArrayDec tree, int spaces ) {///////////////////////////////////////////
+  static private void generateTable( ArrayDec tree, int spaces ) {
       
-      // indent( spaces );
-      // System.out.println( "ArrayDec:" );
-      spaces += SPACES;
+      
       generateTable( tree.typ, spaces );
-      // indent( spaces );
-      // System.out.println( tree.name );
       if ( tree.size != null) generateTable( tree.size, spaces );
       
-      SymTable.insert(tree.name, tree.typ.typ, scope);
+      if(!SymTable.insert(tree.name, tree.typ.typ, scope))
+      {
+        System.out.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
+      }
       
   }
   
   static private int generateTable( AssignExp tree, int spaces ) {
-      
-    //  // indent( spaces );
-    //  // System.out.println( "AssignExp:" );
-/*      spaces += SPACES;
-      generateTable( tree.lhs, spaces );
-      spaces += SPACES;
-    //  // indent( spaces );
-     // // System.out.println(" = ");
-      generateTable( tree.rhs, spaces );*/
       int LHS = generateTable(tree.lhs, spaces);
       int RHS = generateTable(tree.rhs, spaces);
       
-     // System.out.println("(AssignExp) LHS: " + LHS + " RHS: " + RHS); //just debugging
       if (LHS != RHS) 
       {
         errorMessage(tree.pos,"Type mismatch", LHS, RHS);
@@ -148,15 +135,8 @@ public class TableGenerator
   
   static private int generateTable( CallExp tree, int spaces ) {
       
-    //indent( spaces );
-    //System.out.println( "CallExp:" );
-      spaces += SPACES;
-    //indent( spaces );
-    //System.out.println( tree.func );
-      generateTable( tree.args, spaces );
       
-    //  if (SymTable.hashMap.containsValue(tree.func)) return SymTable.hashMap.get(tree.func).type;
-    //  return -1;
+      generateTable( tree.args, spaces );
     
       Entry e = SymTable.lookup(tree.func);
       if(e == null)
@@ -174,77 +154,56 @@ public class TableGenerator
       
   }
   
-  static private int generateTable( CompoundExp tree, int spaces ) {///////////////////
-      
-    //indent( spaces );
-    //System.out.println( "CompoundExp:" );
+  static private int generateTable( CompoundExp tree, int spaces ) {
+  
       scope++;
-   //   if (drawTable) System.out.println("ENTERING SCOPE " + scope);
-      spaces += SPACES;
+      
       generateTable( tree.decs, spaces );
       generateTable( tree.exps, spaces );
       leaveScope();
-   //    if (drawTable) System.out.println("EXITED SCOPE " + (scope+1) );
+
       
       return -1; //does nothing, only to make generateTable(Exp) work
       
   }
   
-  static private void generateTable( FunctionDec tree, int spaces ) { /////////////////////////
+  static private void generateTable( FunctionDec tree, int spaces ) {
       
-    //indent( spaces );
-    //System.out.println( "FunctionDec:" );
       
-      spaces += SPACES;
       expectedReturn = generateTable(tree.result, spaces);
-
-    
-    
-    
-    
-   // indent( spaces );
-   // System.out.println( tree.func );
-   // generateTable( tree.params, spaces );
-   // generateTable( tree.body, spaces );
       
-       
-    //  if (drawTable) System.out.println("ADDING FUNCTION: " + tree.func);
-      SymTable.insert(tree.func, tree.result.typ, scope);
+      
+      if(!SymTable.insert(tree.func, tree.result.typ, scope))
+      {
+        System.out.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
+      }
       scope++; 
       generateTable( tree.params, spaces );
       scope--;
       generateTable( tree.body, spaces );
-   //   leaveScope();
   
       
   }
   
   static private int generateTable( IfExp tree, int spaces ) {
       
-   // indent( spaces );
-   // System.out.println( "IfExp:" );
-      spaces += SPACES;
-      int TEST = generateTable( tree.test, spaces );
-      generateTable( tree.thenpart, spaces );
-      int TEST_ELSE = generateTable( tree.elsepart, spaces );
+
       
-      if (TEST == 0 && TEST_ELSE == 0) return 0;
-      System.out.println("Error: Line " + (tree.pos+1) + ". Condition not of type int");
+      int TEST = 0; generateTable( tree.test, spaces );
+      generateTable( tree.thenpart, spaces );
+      generateTable( tree.elsepart, spaces );
+      
+      if (TEST == 0 ) return 0;
+      if (TEST == 1) System.out.println("Error: Line " + (tree.pos+1) + ". Condition not of type int");
       return -1;
       
   }
   
   static private int generateTable( IndexVar tree, int spaces ) {
       
-   // indent( spaces );
-   // System.out.println( "IndexVar:" );
-      spaces += SPACES;
-   // indent( spaces );
-   // System.out.println( tree.name );
+      
    
       int INDEX = generateTable( tree.index, spaces );
-   //   if (SymTable.hashMap.containsValue(tree.name)) return SymTable.hashMap.get(tree.name).type;
-   //   return -1; //fail case
 	  
 	  if (INDEX != 0)
 	  {
@@ -270,78 +229,29 @@ public class TableGenerator
   
   static private int generateTable( IntExp tree, int spaces ) {
       
-      // indent( spaces );
-      // System.out.println( "IntExp:" );
-      spaces += SPACES;
-      // indent( spaces );
-      // System.out.println( tree.value );
-      return 0; //return integer type
+      
+      return 0;
       
   }
   
   static private int generateTable( NameTy tree, int spaces ) {
       
-    //indent( spaces );
-    //System.out.println( "NameTy:" );
-      spaces += SPACES;
-   // indent( spaces );
       switch( tree.typ ) {
           case NameTy.INT:
-            // System.out.println( "INT" );
             return 0;
           case NameTy.VOID:
-            // System.out.println( "VOID" );
             return 1;
           default:
             return -1;
-            // System.out.println( "Unrecognized operator at line " + tree.pos);
       }
       
   }
 
   static private int generateTable( OpExp tree, int spaces ) {
-      
- //    indent( spaces );
- /*    System.out.print( "OpExp:" ); 
-    switch( tree.op ) {
-      case OpExp.PLUS:
-         System.out.println( " + " );
-        break;
-      case OpExp.MINUS:
-         System.out.println( " - " );
-        break;
-      case OpExp.MUL:
-         System.out.println( " * " );
-        break;
-      case OpExp.DIV:
-         System.out.println( " / " );
-        break;
-      case OpExp.EQLTY:
-         System.out.println( " == " );
-        break;
-      case OpExp.NE:
-         System.out.println( " != " );
-        break;
-      case OpExp.LT:
-         System.out.println( " < " );
-        break;
-      case OpExp.LE:
-         System.out.println( " <= " );
-        break;
-      case OpExp.GT:
-         System.out.println( " > " );
-        break;
-      case OpExp.GE:
-         System.out.println( " >= " );
-        break;
-      default:
-         System.out.println( "Unrecognized operator at line " + tree.pos);
-    }*/
-    spaces += SPACES;
+    
     int LHS = generateTable( tree.left, spaces );
     int RHS = generateTable( tree.right, spaces );
     
-    //System.out.println("Line " + (tree.pos+1) + " (OpExp) LHS: " + LHS + " RHS: " + RHS);
     if (LHS != RHS) 
     {
         errorMessage(tree.pos, "Type mismatch", LHS, RHS);
@@ -353,8 +263,6 @@ public class TableGenerator
   
   static private int generateTable( ReturnExp tree, int spaces ) {
       
-      // indent( spaces );
-      // System.out.println( "ReturnExp:" );
       int returnType;
       
       if (tree.exp == null) 
@@ -366,36 +274,24 @@ public class TableGenerator
       {
         System.err.println("Error: Line " + (tree.pos+1) + ". Invalid return type.");
       }
-      
       return returnType;
-      //spaces += SPACES;
-      //generateTable( tree.exp, spaces );
+
       
   }
   
   static private void generateTable( SimpleDec tree, int spaces ) {
-      
-      // indent( spaces );
-      // System.out.println( "SimpleDec:" );
-      spaces += SPACES;
+
       generateTable( tree.typ, spaces );
-      spaces += SPACES;
-      // indent( spaces );
-      // System.out.println( tree.name );
-      SymTable.insert(tree.name, tree.typ.typ, scope);
+      
+      if(!SymTable.insert(tree.name, tree.typ.typ, scope))
+      {
+        System.out.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
+      }
+      
       
   }
   
   static private int generateTable( SimpleVar tree, int spaces ) {
-      
-      // indent( spaces );
-      // System.out.println( "SimpleVar:" );
-      spaces += SPACES;
-      // indent( spaces );
-      // System.out.println( tree.name );
-      
-      
-    //  if (SymTable.hashMap.containsValue(tree.name)) return SymTable.hashMap.get(tree.name).type;
     
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
@@ -405,29 +301,20 @@ public class TableGenerator
       }
       else
       {
-       // System.out.println("(SimpleVar) Lookup for " + tree.name + " found it of type " + e.type); 
         return e.type;
-      }
-     // return -1; //error case
-      
+      }      
   }
   
   static private int generateTable( VarExp tree, int spaces ) {
+
       
-      // indent( spaces );
-      // System.out.println( "VarExp:" );
-      spaces += SPACES;
-      // generateTable( tree.variable, spaces );
       return generateTable(tree.variable, spaces);
       
   }
   
   static private int generateTable( WhileExp tree, int spaces ) {
+
       
-      // indent( spaces );
-      // System.out.println( "WhileExp:" );
-      spaces += SPACES;
-      // generateTable( tree.test, spaces );
       generateTable( tree.body, spaces );
       return generateTable(tree.test, spaces);
       

@@ -11,24 +11,32 @@ public class SymTable
 {
     static HashMap<String, Entry> hashMap = new HashMap<String, Entry>();
     
-    public static void insert(String name, int type, int scope)
+    public static Boolean insert(String name, int type, int scope)
     {
         Entry entry = new Entry(type, scope, null);
         
         Entry existingEntry = lookup(name);
         
+
+        
         if(existingEntry == null)
         {
             hashMap.put(name, entry);
+        }
+        else if(existingEntry.scope == scope)
+        {
+            return false;
         }
         else
         {
             entry.next = existingEntry;
             hashMap.put(name, entry);
+
         }
+        return true;
 
     }    
-    
+
     public static Entry lookup(String name)
     {
         int maxScope = -1;
@@ -104,6 +112,13 @@ public class SymTable
 
     public static void print()
     {
+        class Pair
+        {
+            String text;
+            int scope;
+        }
+        List<Pair> toPrint = new ArrayList<Pair>();
+        
         System.out.println("*********************");
         Iterator entries = hashMap.entrySet().iterator();
         while (entries.hasNext()) 
@@ -115,17 +130,45 @@ public class SymTable
             {
                 Integer type = e.type;
                 Integer scope = e.scope;
+                Pair p = new Pair();
+                p.scope = scope;
                 if (type == 0) {
-					TableGenerator.indent(TableGenerator.SPACES*scope);
-					System.out.println("[" + key + ", INT]");
+                    p.text = "[" + key + ", INT]";
+					//TableGenerator.indent(TableGenerator.SPACES*scope);
+					//System.out.println("[" + key + ", INT]");
+					
                 } else if (type == 1) {
-					TableGenerator.indent(TableGenerator.SPACES*scope);
-					System.out.println("[" + key + ", VOID]");
+                    p.text = "[" + key + ", VOID]";
+					//TableGenerator.indent(TableGenerator.SPACES*scope);
+					//System.out.println("[" + key + ", VOID]");
 				}
+				toPrint.add(p);
                 e = e.next;
             }
 
         }
+        
+        
+        for(int i = 0; i < 50; i++)
+        {
+            for(Pair p : toPrint)
+            {
+                if(p.scope == i)
+                {
+                    TableGenerator.indent(TableGenerator.SPACES*i);
+                    System.out.println(p.text);
+                }
+            }
+        
+        }
+        
+        
+        
+        
+        
+        
+        
+        
         System.out.println("*********************");
     
     }
