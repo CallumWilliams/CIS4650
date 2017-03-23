@@ -181,8 +181,13 @@ public class TableGenerator
       generateTable( tree.params, spaces );
       scope--;
       generateTable( tree.body, spaces );
-      System.out.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
-      SymTable.print();
+      
+      if(drawTable)
+      {
+            System.out.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
+            SymTable.print();
+      }
+
   
       
   }
