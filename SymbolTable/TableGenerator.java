@@ -156,11 +156,11 @@ public class TableGenerator
   
   static private int generateTable( CompoundExp tree, int spaces ) {
   
-      enterScope("CompundExp");
+      enterScope("CompoundExp");
       
       generateTable( tree.decs, spaces );
       generateTable( tree.exps, spaces );
-      leaveScope("CompundExp");
+      leaveScope("CompoundExp");
 
       
       return -1; //does nothing, only to make generateTable(Exp) work
