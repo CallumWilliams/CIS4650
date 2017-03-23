@@ -156,11 +156,11 @@ public class TableGenerator
   
   static private int generateTable( CompoundExp tree, int spaces ) {
   
-      scope++;
+      enterScope("CompundExp");
       
       generateTable( tree.decs, spaces );
       generateTable( tree.exps, spaces );
-      leaveScope();
+      leaveScope("CompundExp");
 
       
       return -1; //does nothing, only to make generateTable(Exp) work
@@ -177,10 +177,12 @@ public class TableGenerator
       {
         System.out.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
-      scope++; 
+      enterScope(tree.func);
       generateTable( tree.params, spaces );
       scope--;
       generateTable( tree.body, spaces );
+      System.out.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
+      SymTable.print();
   
       
   }
@@ -320,14 +322,30 @@ public class TableGenerator
       
   }
 
-  private static void leaveScope()
+  private static void leaveScope(String name)
   {
     if(drawTable)
+    {   
+        System.out.println("Exiting" + name + " scope");
+        System.out.println("Symbol table at exit:");
         SymTable.print();
-        
+    }   
+       
     SymTable.removeScope(scope);
     scope--;
   }
+  
+  private static void enterScope(String name)
+  {
+    if(drawTable)
+    {   
+        System.out.println("Entering " + name + " scope");
+        System.out.println("Symbol table at entry:");
+        SymTable.print();
+    }   
+    scope++;
+  }
+  
   
   private static void errorMessage(int line, String message, int LHS, int RHS)
   {
