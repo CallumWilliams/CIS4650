@@ -1,4 +1,4 @@
-/* Test 1 - no errors */
+/* Test 5 - conditional tests void */
 
 int functionOne(void b, int c, int d) {
 	

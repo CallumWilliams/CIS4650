@@ -115,7 +115,7 @@ public class TableGenerator
       
       if(!SymTable.insert(tree.name, tree.typ.typ, scope))
       {
-        System.out.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
+        System.err.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
       }
       
   }
@@ -141,8 +141,8 @@ public class TableGenerator
       Entry e = SymTable.lookup(tree.func);
       if(e == null)
       {
-        System.out.println("");
-        System.out.println("Error:  Line " + (tree.pos+1) + ". Symbol '" + tree.func + "' not defined.");
+        System.err.println("");
+        System.err.println("Error:  Line " + (tree.pos+1) + ". Symbol '" + tree.func + "' not defined.");
         return -1;
       }
       else
@@ -175,7 +175,7 @@ public class TableGenerator
       
       if(!SymTable.insert(tree.func, tree.result.typ, scope))
       {
-        System.out.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
+        System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
       enterScope(tree.func);
       generateTable( tree.params, spaces );
@@ -184,7 +184,7 @@ public class TableGenerator
       
       if(drawTable)
       {
-            System.out.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
+            System.err.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
             SymTable.print();
       }
 
@@ -196,12 +196,12 @@ public class TableGenerator
       
 
       
-      int TEST = 0; generateTable( tree.test, spaces );
+      int TEST = generateTable( tree.test, spaces );
       generateTable( tree.thenpart, spaces );
       generateTable( tree.elsepart, spaces );
       
       if (TEST == 0 ) return 0;
-      if (TEST == 1) System.out.println("Error: Line " + (tree.pos+1) + ". Condition not of type int");
+      if (TEST == 1) System.err.println("Error: Line " + (tree.pos+1) + ". Condition cannot be of type void.");
       return -1;
       
   }
@@ -214,15 +214,15 @@ public class TableGenerator
 	  
 	  if (INDEX != 0)
 	  {
-		  System.out.println("");
-		  System.out.println("Error: Line " + (tree.pos+1) + ". Index for'" + tree.name + "' not int.");
+		  System.err.println("");
+		  System.err.println("Error: Line " + (tree.pos+1) + ". Index for'" + tree.name + "' not int.");
 	  }
 	  
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
       {
-        System.out.println("");
-        System.out.println("Error: Line " + (tree.pos+1) + ". Symbol '" + tree.name + "' not defined.");
+        System.err.println("");
+        System.err.println("Error: Line " + (tree.pos+1) + ". Symbol '" + tree.name + "' not defined.");
         return -1;
       }
       else
@@ -235,7 +235,6 @@ public class TableGenerator
   }
   
   static private int generateTable( IntExp tree, int spaces ) {
-      
       
       return 0;
       
@@ -292,7 +291,7 @@ public class TableGenerator
       
       if(!SymTable.insert(tree.name, tree.typ.typ, scope))
       {
-        System.out.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
+        System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
       }
       
       
@@ -303,7 +302,7 @@ public class TableGenerator
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
       {
-        System.out.println("Error: Line " + (tree.pos+1) + ". Symbol '" + tree.name + "' not defined.");
+        System.err.println("Error: Line " + (tree.pos+1) + ". Symbol '" + tree.name + "' not defined.");
         return -1;
       }
       else

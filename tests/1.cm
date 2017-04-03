@@ -1,5 +1,7 @@
 /* Test 1 - no errors */
 
+int globe[3];
+
 int functionOne(void b, int c, int d) {
 	
 	int a;
