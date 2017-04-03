@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 
 import absyn.*;
+import AssemblyGen.*;
 
 public class cm {
 
@@ -24,6 +25,9 @@ public class cm {
     {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Object result = p.parse().value;
+      
+      //currently just prints the result, doesn't write to file yet
+      System.out.println(AssemblyGen.generateAssembly((DecList)result, 0));
 
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */
