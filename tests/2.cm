@@ -7,7 +7,7 @@ int functionOne(void b, int c, int d) {
 	
 	a = c*d;
 	if (a == 0) return a*b;
-	else return a + functionOne(b, c-1, d);
+	else return a + functionOne(a, c-1, d);
 	
 }
 

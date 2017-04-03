@@ -259,8 +259,10 @@ public class TableGenerator
     
     if (LHS != RHS) 
     {
-        errorMessage(tree.pos, "Type mismatch", LHS, RHS);
-        return -1;          
+        //errorMessage(tree.pos, "Type mismatch", LHS, RHS);
+        /* TYPE INFERENCE - ASSERT THE RESULT TO BE AN INTEGER (TAKES PRECEDENCE) */
+        System.err.println("Warning: Line " + (tree.pos+1) + ". Operands not equal, result assumed to be integer.");
+        return 0;
     }
     return LHS;
      
