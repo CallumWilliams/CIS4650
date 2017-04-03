@@ -21,8 +21,8 @@ public class TableGenerator
   static public void generateTable( DecList tree, int spaces, Boolean draw ) {
       
       drawTable = draw;
-      SymTable.insert("input", 0, 0);
-      SymTable.insert("output", 1, 0);
+      SymTable.insert("input", 0, 1, 0);
+      SymTable.insert("output", 1, 1, 0);
       while (tree != null) {
           generateTable( tree.head, spaces );
           tree = tree.tail;
@@ -109,11 +109,10 @@ public class TableGenerator
   
   static private void generateTable( ArrayDec tree, int spaces ) {
       
-      
+      int array_size = 1;
       generateTable( tree.typ, spaces );
-      if ( tree.size != null) generateTable( tree.size, spaces );
-      
-      if(!SymTable.insert(tree.name, tree.typ.typ, scope))
+      if ( tree.size != null) array_size = tree.size.value;
+      if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope))
       {
         System.err.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
       }
@@ -173,7 +172,7 @@ public class TableGenerator
       expectedReturn = generateTable(tree.result, spaces);
       
       
-      if(!SymTable.insert(tree.func, tree.result.typ, scope))
+      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
@@ -289,7 +288,7 @@ public class TableGenerator
 
       generateTable( tree.typ, spaces );
       
-      if(!SymTable.insert(tree.name, tree.typ.typ, scope))
+      if(!SymTable.insert(tree.name, tree.typ.typ, 1, scope))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
       }

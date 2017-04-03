@@ -11,13 +11,11 @@ public class SymTable
 {
     static HashMap<String, Entry> hashMap = new HashMap<String, Entry>();
     
-    public static Boolean insert(String name, int type, int scope)
+    public static Boolean insert(String name, int type, int dim, int scope)
     {
-        Entry entry = new Entry(type, scope, null);
+        Entry entry = new Entry(type, scope, dim, null);
         
         Entry existingEntry = lookup(name);
-        
-
         
         if(existingEntry == null)
         {
@@ -129,18 +127,16 @@ public class SymTable
             while(e != null)
             {
                 Integer type = e.type;
+                Integer dimensions = e.dim;
                 Integer scope = e.scope;
                 Pair p = new Pair();
                 p.scope = scope;
                 if (type == 0) {
-                    p.text = "[" + key + ", INT]";
-					//TableGenerator.indent(TableGenerator.SPACES*scope);
-					//System.out.println("[" + key + ", INT]");
-					
+                    p.text = key + ", INT";
+                    if (dimensions > 1) p.text += "[" + dimensions + "]";
                 } else if (type == 1) {
-                    p.text = "[" + key + ", VOID]";
-					//TableGenerator.indent(TableGenerator.SPACES*scope);
-					//System.out.println("[" + key + ", VOID]");
+                    p.text = key + ", VOID";
+                    if (dimensions > 1) p.text += "[" + dimensions + "]";
 				}
 				toPrint.add(p);
                 e = e.next;
