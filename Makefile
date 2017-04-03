@@ -6,7 +6,10 @@ CLASSPATH=-classpath /usr/share/java/cup.jar:.
 CUP=$(JAVA) $(CLASSPATH) java_cup.Main <
 #CUP=cup
 
-all: cm.class
+all: cm.class TURING
+
+TURING:
+	gcc -w tm.c -o tm
 
 cm.class: absyn/*.java SymbolTable/*.java parser.java sym.java Lexer.java cm.java
 
@@ -25,11 +28,8 @@ table:
 cm.java: 
 	$(JAVAC) $(CLASSPATH) $(MAIN)
 	
-	
-	
-
 clean:
-	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~ SymbolTable/*.class *~
+	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~ SymbolTable/*.class *~ tm
 
 #shortcuts for running Checkpoint 1 tests
 test1:
