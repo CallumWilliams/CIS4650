@@ -194,9 +194,8 @@ public class TableGenerator
   
   static private int generateTable( CallExp tree, int spaces ) {
       
-      
       generateTable( tree.args, spaces );
-    
+	  
       Entry e = SymTable.lookup(tree.func);
       if(e == null)
       {
@@ -206,6 +205,13 @@ public class TableGenerator
       }
       else
       {
+		//is this right at all? (lec. 11, slide 9)
+		comment("<- call " + tree.func);
+		emitRM("ST", fp, e.offset+ofpFO, fp, "store current fp");
+		emitRM("LDA", fp, e.offset, fp, "push new frame");
+		emitRM("LDA", 0, 1, pc, "save return in ac");
+		//emitRM() relative jump to function entry, have we stored the file lines of each function?
+		emitRM("LD", fp, ofpFO, fp, "pop current frame");
         return e.type;
       }
     
