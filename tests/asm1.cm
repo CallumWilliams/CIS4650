@@ -8,4 +8,7 @@ void main(void)
     y = x + 2;
     z = (11 + 22) / (33 + 44);
     a = (y * 8 - y) * ( 2 * z); 
+    if (x == 0) {
+		print(a);
+    }
 }

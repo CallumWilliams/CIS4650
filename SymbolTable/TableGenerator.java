@@ -45,7 +45,6 @@ public class TableGenerator
       SymTable.insert("output", 1, 1, 0, gpOff);
       gpOff--;
       
-      
       comment("Standard prelude:");
       emitRM("LD", 6, 0, 0);
       emitRM("LDA", 5, 0, 6);
@@ -68,6 +67,15 @@ public class TableGenerator
           generateTable( tree.head, spaces );
           tree = tree.tail;
       }
+      
+      comment("Finale");
+      emitRM("ST", 5, -1, 5, "push ofp");
+      emitRM("LDA", 5, -1, 5, "push frame");
+      emitRM("LDA", 0, 1, 7, "load ac with ret ptr");
+      emitRM("LDA", 7, -35, 7, "jump to main loc");
+      emitRM("LD", 5, 0, 5, "pop frame");
+      emitRO("HALT", 0, 0, 0, "terminate");
+      comment("End of finale");
       
   }
   
@@ -262,17 +270,41 @@ public class TableGenerator
        if(tree.elsepart != null)
        {
            //If there's an else, we supposed to jump to the true branch or fall through to the else
-           if(testExp.op == OpExp.EQLTY)
-           {
-                emitRM("JEQ", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+           
+           //Callum note - Our jump conditions need to be inverted
+           //E.x. if (x == 0), we want to "jump" when x is not equal to 0, and run execution after jump. 
+           //if it's true, no jump (until end of if statement), and run normally
+           if(testExp.op == OpExp.EQLTY) {
+                emitRM("JNE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
                 generateTable( tree.elsepart, spaces );
-           }
-           //Need the rest of the test types here  
+           } else if (testExp.op == OpExp.NE) {
+			   emitRM("JEQ", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+			   generateTable( tree.elsepart, spaces );
+		   } else if (testExp.op == OpExp.LT) {
+			   emitRM("JGE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+			   generateTable( tree.elsepart, spaces );
+		   } else if (testExp.op == OpExp.LE) {
+			   emitRM("JGT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+			   generateTable( tree.elsepart, spaces );
+		   } else if (testExp.op == OpExp.GT) {
+			   emitRM("JLE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+			   generateTable( tree.elsepart, spaces );
+		   } else if (testExp.op == OpExp.GE) {
+			   emitRM("JLT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+			   generateTable( tree.elsepart, spaces );
+		   } 
            
        }
        else //if statement with no else part
        {
-       
+			//Callum note - same jumping as before, except we're just jumping over the whole conditional
+			//again, how do we know how far we need to jump?
+			if(testExp.op == OpExp.EQLTY) emitRM("JNE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+            else if (testExp.op == OpExp.NE) emitRM("JEQ", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+		    else if (testExp.op == OpExp.LT) emitRM("JGE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+		    else if (testExp.op == OpExp.LE) emitRM("JGT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+		    else if (testExp.op == OpExp.GT) emitRM("JLE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+		    else if (testExp.op == OpExp.GE) emitRM("JLT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
        }
      
 
