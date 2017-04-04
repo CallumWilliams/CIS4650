@@ -10,9 +10,19 @@ public class AssemblyGen
       
 
       String ret = "0: LD 6,0(0)\n1: LDA 5,0(6)\n2: ST 0,0(0)\n";
-      line = 3;
+      //i/o routines
+      ret += "4: ST  0,-1(5)\n";
+      ret += "5: IN 0,0,0\n";
+      ret += "6: LD 7,-1(5)\n";
+      ret += "7: ST  0,-1(5)\n";
+      ret += "8: LD  0,-2(5)\n";
+      ret += "9: OUT  0,0,0\n";
+      ret += "10: LD  7,-1(5)\n";
+      ret += "3: LDA  0,-1(5)\n";
+      line = 12;
+      
       while (tree != null) {
-          ret += generateAssembly( tree.head);
+          ret += generateAssembly( tree.head );
           tree = tree.tail;
       }
       ret += (line++) + ": ST 5, -1(5)\n";
@@ -142,7 +152,7 @@ public class AssemblyGen
   
   static private String generateAssembly( FunctionDec tree ) {
       
-      String ret = "";
+      String ret = (line++) + "ST 0,-1(5)";
       generateAssembly( tree.params);
       generateAssembly( tree.body);
       return ret;
