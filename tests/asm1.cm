@@ -1,0 +1,9 @@
+int y;
+
+int main (void)
+{
+    int z;
+    z = 10;
+
+    return 1;
+}

@@ -11,9 +11,9 @@ public class SymTable
 {
     static HashMap<String, Entry> hashMap = new HashMap<String, Entry>();
     
-    public static Boolean insert(String name, int type, int dim, int scope)
+    public static Boolean insert(String name, int type, int dim, int scope, int offset)
     {
-        Entry entry = new Entry(type, scope, dim, null);
+        Entry entry = new Entry(type, scope, dim, null, offset);
         
         Entry existingEntry = lookup(name);
         
@@ -54,6 +54,18 @@ public class SymTable
         }
         return maxEntry;
     }
+    
+    public static int getOffset(String name)
+    {
+        Entry e = lookup(name);
+        if(e != null)
+            return e.offset;
+        else
+            return -99; //Some random error code. There's probably a better way
+    }
+    
+    
+    
     
     
     public static void removeScope(int scope)
@@ -129,6 +141,7 @@ public class SymTable
                 Integer type = e.type;
                 Integer dimensions = e.dim;
                 Integer scope = e.scope;
+                Integer offset = e.offset; //Debugging
                 Pair p = new Pair();
                 p.scope = scope;
                 if (type == 0) {
@@ -138,6 +151,11 @@ public class SymTable
                     p.text = key + ", VOID";
                     if (dimensions > 1) p.text += "[" + dimensions + "]";
 				}
+				
+				if(scope == 0)
+				    p.text += "|gp offset:" + offset; //Debugging
+				else
+				    p.text += "|fp offset:" + offset; //Debugging    
 				toPrint.add(p);
                 e = e.next;
             }

@@ -27,7 +27,7 @@ public class cm {
       Object result = p.parse().value;
       
       //currently just prints the result, doesn't write to file yet
-      System.out.println(AssemblyGen.generateAssembly((DecList)result));
+     // System.out.println(AssemblyGen.generateAssembly((DecList)result));
 
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */

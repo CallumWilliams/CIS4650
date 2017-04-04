@@ -13,7 +13,26 @@ public class TableGenerator
   public int pos;
 
   final static int SPACES = 4;
+  
+  
+  
+  //Assembly stuff
+  static int gp = 100, //Top of memory. NEEDS REAL INITIALISATION
+             fp = 0,
+             fpOff = 0,
+             gpOff = 0,
+             pc = 0;
 
+  final static int PC_REG = 7,
+                   GP_REG = 6,
+                   FP_REG = 5;
+
+  static int ofpFO = 0,   //I don't think these change
+             retFO = -1,
+             initFO = -2;          
+  ////////
+  
+             
   static public void indent( int spaces ) {
     for( int i = 0; i < spaces; i++ )  System.out.print( " " );
   }
@@ -21,8 +40,10 @@ public class TableGenerator
   static public void generateTable( DecList tree, int spaces, Boolean draw ) {
       
       drawTable = draw;
-      SymTable.insert("input", 0, 1, 0);
-      SymTable.insert("output", 1, 1, 0);
+      SymTable.insert("input", 0, 1, 0, gpOff);
+      gpOff--;
+      SymTable.insert("output", 1, 1, 0, gpOff);
+      gpOff--;
       while (tree != null) {
           generateTable( tree.head, spaces );
           tree = tree.tail;
@@ -112,22 +133,42 @@ public class TableGenerator
       int array_size = 1;
       generateTable( tree.typ, spaces );
       if ( tree.size != null) array_size = tree.size.value;
-      if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope))
+      if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope, fpOff))
       {
         System.err.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
       }
+      fpOff--;
       
   }
   
   static private int generateTable( AssignExp tree, int spaces ) {
+    
+
+        
+      SimpleVar sv = (SimpleVar)tree.lhs.variable;
+      String varName = sv.name;
+      int offset = SymTable.getOffset(varName);
+      System.out.println("Assigning a value to " + varName); 
+      
       int LHS = generateTable(tree.lhs, spaces);
-      int RHS = generateTable(tree.rhs, spaces);
+      int RHS = generateTable(tree.rhs, spaces); //This will store the result of RHS in a register (I chose r0 for now -- does it matter??)
       
       if (LHS != RHS) 
       {
         errorMessage(tree.pos,"Type mismatch", LHS, RHS);
         return -1;
       }
+      
+
+      
+      //System.out.println("LDA 0, " + offset + "(" + FP_REG + ")");
+      System.out.println("ST 0, " + offset + "(" + FP_REG + ")");
+      
+      
+      
+      
+      
+      
       return LHS;
       
   }
@@ -169,13 +210,21 @@ public class TableGenerator
   static private void generateTable( FunctionDec tree, int spaces ) {
       
       
-      expectedReturn = generateTable(tree.result, spaces);
+      System.out.println("function setup stuff goes here"); 
+      expectedReturn = generateTable(tree.result, spaces); 
       
-      
-      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope))
+      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
+      gpOff--;
+      
+      System.out.println("gp: " + gp + " gpOff: " + gpOff);
+      fp = gp + gpOff;   //Set fp to the next empty spot in memory
+      
+      fpOff = 0;
+      
+      
       enterScope(tree.func);
       generateTable( tree.params, spaces );
       scope--;
@@ -186,8 +235,7 @@ public class TableGenerator
             System.err.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
             SymTable.print();
       }
-
-  
+      System.out.println("function cleanup stuff goes here"); 
       
   }
   
@@ -235,6 +283,8 @@ public class TableGenerator
   
   static private int generateTable( IntExp tree, int spaces ) {
       
+    //  System.out.println("(IntExp) Storing " + tree.value + " in r0");
+      System.out.println("LDC 0, " + tree.value + "(0)");
       return 0;
       
   }
@@ -290,10 +340,13 @@ public class TableGenerator
 
       generateTable( tree.typ, spaces );
       
-      if(!SymTable.insert(tree.name, tree.typ.typ, 1, scope))
+      int offset = scope == 0 ? gpOff : fpOff; //Use gp if it's a global var, fp otherwise
+      
+      if(!SymTable.insert(tree.name, tree.typ.typ, 1, scope, offset))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
       }
+      int dummy = scope == 0 ? gpOff-- : fpOff--; 
       
       
   }
@@ -365,6 +418,11 @@ public class TableGenerator
         System.err.println("");
   }
 
+
+  private static void emitRM(String opcode)
+  {
+    System.out.println(opcode);
+  }
 
 
 
