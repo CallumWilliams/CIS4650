@@ -44,6 +44,26 @@ public class TableGenerator
       gpOff--;
       SymTable.insert("output", 1, 1, 0, gpOff);
       gpOff--;
+      
+      
+      comment("Standard prelude:");
+      emitRM("LD", 6, 0, 0);
+      emitRM("LDA", 5, 0, 6);
+      emitRM("ST", 0, 0, 0);
+      emitRM("ST", 0, -1, 5);
+      emitRM("IN", 0, 0, 0);
+      emitRM("LD", 7, -1, 5);
+      emitRM("ST", 0, -1, 5);
+      emitRM("LD", 0, -2, 5);
+      emitRM("OUT", 0, 0, 0);
+      emitRM("LD", 7, -1, 5);
+      emitRM("LDA", 7, 7, 7);
+      
+      comment("End of standard prelude");
+
+      
+      
+      
       while (tree != null) {
           generateTable( tree.head, spaces );
           tree = tree.tail;
@@ -130,6 +150,7 @@ public class TableGenerator
   
   static private void generateTable( ArrayDec tree, int spaces ) {
       
+
       int array_size = 1;
       generateTable( tree.typ, spaces );
       if ( tree.size != null) array_size = tree.size.value;
@@ -142,16 +163,14 @@ public class TableGenerator
   }
   
   static private int generateTable( AssignExp tree, int spaces ) {
-    
-
-        
+       
+      comment("AssignExp"); 
       SimpleVar sv = (SimpleVar)tree.lhs.variable;
       String varName = sv.name;
       int offset = SymTable.getOffset(varName);
-      System.out.println("Assigning a value to " + varName); 
-      
-      int LHS = generateTable(tree.lhs, spaces);
-      int RHS = generateTable(tree.rhs, spaces); //This will store the result of RHS in a register (I chose r0 for now -- does it matter??)
+    
+      int LHS = generateTable(tree.lhs, -1);
+      int RHS = generateTable(tree.rhs, 0); //This will store the result of RHS in a register (I chose r0 for now)
       
       if (LHS != RHS) 
       {
@@ -160,16 +179,8 @@ public class TableGenerator
       }
       
 
-      
-      //System.out.println("LDA 0, " + offset + "(" + FP_REG + ")");
-      System.out.println("ST 0, " + offset + "(" + FP_REG + ")");
-      
-      
-      
-      
-      
-      
-      return LHS;
+     emitRM("ST", 0, offset, FP_REG, "load r0 in to " + varName); //This is the code to move the value of r0 to value of the variabl;  
+     return LHS;
       
   }
   
@@ -197,6 +208,7 @@ public class TableGenerator
   static private int generateTable( CompoundExp tree, int spaces ) {
   
       enterScope("CompoundExp");
+      comment("compound statement");
       
       generateTable( tree.decs, spaces );
       generateTable( tree.exps, spaces );
@@ -210,17 +222,18 @@ public class TableGenerator
   static private void generateTable( FunctionDec tree, int spaces ) {
       
       
-      System.out.println("function setup stuff goes here"); 
+      comment("processing function: " + tree.func); 
+      emitRM("ST", 0, -1, 5, "store return"); //He has this at the start of every function so I just copied it
+
       expectedReturn = generateTable(tree.result, spaces); 
-      
       if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
       gpOff--;
       
-      System.out.println("gp: " + gp + " gpOff: " + gpOff);
       fp = gp + gpOff;   //Set fp to the next empty spot in memory
+                         //I think we need to actually change the fp register or something
       
       fpOff = 0;
       
@@ -241,11 +254,32 @@ public class TableGenerator
   
   static private int generateTable( IfExp tree, int spaces ) {
       
+       comment("IfExp");
+       
+       int TEST = generateTable( tree.test, 0); //Stores result of test in r0
+       
+       OpExp testExp = (OpExp)tree.test;
+       if(tree.elsepart != null)
+       {
+           //If there's an else, we supposed to jump to the true branch or fall through to the else
+           if(testExp.op == OpExp.EQLTY)
+           {
+                emitRM("JEQ", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+                generateTable( tree.elsepart, spaces );
+           }
+           //Need the rest of the test types here  
+           
+       }
+       else //if statement with no else part
+       {
+       
+       }
+     
 
-      
-      int TEST = generateTable( tree.test, spaces );
-      generateTable( tree.thenpart, spaces );
-      generateTable( tree.elsepart, spaces );
+
+
+//      generateTable( tree.thenpart, spaces );        //Exp
+//      generateTable( tree.elsepart, spaces );        //Exp
       
       if (TEST == 0 ) return 0;
       if (TEST == 1) System.err.println("Error: Line " + (tree.pos+1) + ". Condition cannot be of type void.");
@@ -283,8 +317,8 @@ public class TableGenerator
   
   static private int generateTable( IntExp tree, int spaces ) {
       
-    //  System.out.println("(IntExp) Storing " + tree.value + " in r0");
-      System.out.println("LDC 0, " + tree.value + "(0)");
+      int reg = spaces;
+      if(reg != -1) emitRM("LDC", reg, tree.value, 0, "moving literal " + tree.value + " to r" + reg);
       return 0;
       
   }
@@ -304,9 +338,19 @@ public class TableGenerator
 
   static private int generateTable( OpExp tree, int spaces ) {
     
-    int LHS = generateTable( tree.left, spaces );
-    int RHS = generateTable( tree.right, spaces );
+    comment("op exp");
+    int LHS = generateTable( tree.left, 0 ); //Stores result in r0   
+    int tmpOffset1 = fpOff;
+    fpOff--;
+    emitRM("ST", 0, tmpOffset1, FP_REG, "move r0 to tempory storage");
     
+    
+    int RHS = generateTable( tree.right, 0 );//Stores result in r0
+    int tmpOffset2 = fpOff;
+    fpOff--;
+    emitRM("ST", 0, tmpOffset2, FP_REG, "move r0 to tempory storage");
+
+        
     if (LHS != RHS) 
     {
         //errorMessage(tree.pos, "Type mismatch", LHS, RHS);
@@ -314,6 +358,22 @@ public class TableGenerator
         System.err.println("Warning: Line " + (tree.pos+1) + ". Operands not equal, result assumed to be integer.");
         return 0;
     }
+    
+    emitRM("LD", 0, tmpOffset1, FP_REG, "move LHS from tmp storage to r0");
+    emitRM("LD", 1, tmpOffset2, FP_REG, "move RHS from tmp storage to r1");
+    
+    
+    if(tree.op == OpExp.PLUS)        emitRO("ADD", 0, 0, 1, "r0 add r1. store result in r0");
+    else if (tree.op == OpExp.MINUS) emitRO("SUB", 0, 0, 1, "r0 sub r1. store result in r0");
+    else if (tree.op == OpExp.MUL)   emitRO("MUL", 0, 0, 1, "r0 mul r1. store result in r0");
+    else if (tree.op == OpExp.DIV)   emitRO("DIV", 0, 0, 1, "r0 div r1. store result in r0");
+    else
+    {
+         comment("conditional test");
+         emitRO("SUB", 0, 0, 1, "op test: == store result in r0");
+    }
+    
+
     return LHS;
      
   }
@@ -337,7 +397,7 @@ public class TableGenerator
   }
   
   static private void generateTable( SimpleDec tree, int spaces ) {
-
+  
       generateTable( tree.typ, spaces );
       
       int offset = scope == 0 ? gpOff : fpOff; //Use gp if it's a global var, fp otherwise
@@ -351,8 +411,17 @@ public class TableGenerator
       
   }
   
-  static private int generateTable( SimpleVar tree, int spaces ) {
+  static private int generateTable( SimpleVar tree, int spaces) {
     
+    
+      //comment("Simple var: " + tree.name);
+      int reg = spaces;
+      if(reg != -1)
+      {
+        int offset = SymTable.getOffset(tree.name);
+        emitRM("LD", reg, offset, FP_REG, "move value of " + tree.name + " in to r" + reg);
+      }
+      
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
       {
@@ -366,8 +435,9 @@ public class TableGenerator
   }
   
   static private int generateTable( VarExp tree, int spaces ) {
-
-      
+  
+    
+        
       return generateTable(tree.variable, spaces);
       
   }
@@ -419,10 +489,33 @@ public class TableGenerator
   }
 
 
-  private static void emitRM(String opcode)
+  private static void emitRM(String opcode, int r, int d, int s, String comment)
   {
-    System.out.println(opcode);
+    System.out.println(opcode + " " + r + ", " + d + "(" + s + ")       *" + comment);
   }
+  
+  private static void emitRM(String opcode, int r, int d, int s)
+  {
+    System.out.println(opcode + " " + r + ", " + d + "(" + s + ")");
+  }
+  
+  private static void emitRO(String opcode, int r, int s, int t, String comment)
+  {
+      System.out.println(opcode + " " + r + ", " + s + ", "  + t + "       *" + comment);
+  }
+  
+  private static void emitRO(String opcode, int r, int s, int t)
+  {
+      System.out.println(opcode + " " + r + ", " + s + ", "  + t + "       *");
+  }
+  
+   
+   
+   
+  private static void comment(String s)
+  {
+    System.out.println("* " + s);
+  } 
 
 
 
