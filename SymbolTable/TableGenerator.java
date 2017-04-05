@@ -30,6 +30,8 @@ public class TableGenerator
              
   static int paramsOffset = 0; //Each paramater stored needs to be 1 lower in memory than the last.
                                //This keeps track of that
+                               
+  static int pc = 0;
   ////////
   
              
@@ -40,9 +42,9 @@ public class TableGenerator
   static public void generateTable( DecList tree, int spaces, Boolean draw ) {
       
       drawTable = draw;
-      SymTable.insert("input", 0, 1, 0, gpOff);
+      SymTable.insert("input", 0, 1, 0, gpOff, 999); //Set these PC's manually 
       gpOff--;
-      SymTable.insert("output", 1, 1, 0, gpOff);
+      SymTable.insert("output", 1, 1, 0, gpOff, 999);
       gpOff--;
       
       //Just commented out to keep output tidy for debugging
@@ -69,15 +71,16 @@ public class TableGenerator
           tree = tree.tail;
       }
       
-      //Just commented out to keep output tidy for debugging
-      /*comment("Finale");
+
+      comment("\n*\n*Finale");
       emitRM("ST", 5, -1, 5, "push ofp");
       emitRM("LDA", 5, -1, 5, "push frame");
       emitRM("LDA", 0, 1, 7, "load ac with ret ptr");
-      emitRM("LDA", 7, -35, 7, "jump to main loc");
+      //emitRM("LDA", 7, -35, 7, "jump to main loc");
+      System.out.println("JUMP TO MAIN");
       emitRM("LD", 5, 0, 5, "pop frame");
       emitRO("HALT", 0, 0, 0, "terminate");
-      comment("End of finale");*/
+      comment("End of finale");
       
   }
   
@@ -176,7 +179,7 @@ public class TableGenerator
       int array_size = 1;
       generateTable( tree.typ, spaces );
       if ( tree.size != null) array_size = tree.size.value;
-      if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope, fpOff))
+      if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope, fpOff, pc))
       {
         System.err.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
       }
@@ -225,7 +228,7 @@ public class TableGenerator
 		emitRM("LDA", FP_REG, fpOff + 1, FP_REG, "push new frame");
 		emitRM("LDA", 0, 1, PC_REG, "save return in r0");
 		//emitRM() relative jump to function entry, have we stored the file lines of each function?
-		System.out.println("Jump to " + tree.func);
+		System.out.println("JUMP TO " + tree.func);
 		emitRM("LD", FP_REG, ofpFO, FP_REG, "pop current frame");
         return e.type;
       }
@@ -251,13 +254,15 @@ public class TableGenerator
   static private void generateTable( FunctionDec tree, int spaces ) {
       
       
+      if(!tree.func.equals("main")) System.out.println("JUMP OVER " + tree.func + " HERE");
+      
       comment("processing function: " + tree.func); 
       fpOff = -2;
       emitRM("ST", 0, retFO, FP_REG, "move return addr from r0 to memory");
 
 
       expectedReturn = generateTable(tree.result, spaces); 
-      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff))
+      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff, pc))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
@@ -273,7 +278,9 @@ public class TableGenerator
             System.err.println("Exiting " + tree.func + ".\nSymbol Table at exit: ");
             SymTable.print();
       }
-      System.out.println("function cleanup stuff goes here"); 
+      
+      emitRM("LD", PC_REG, retFO, FP_REG);
+      if(!tree.func.equals("main")) System.out.println("LAND AFTER " + tree.func + " HERE\n\n");
       
   }
   
@@ -370,11 +377,9 @@ public class TableGenerator
       //8 = store it in to a register then load it in to memory (for argument parameters)
       int reg = spaces;
       if(reg == 0 || reg == 1) emitRM("LDC", reg, tree.value, 0, "moving literal " + tree.value + " to r" + reg);
-      if(reg == 8)
+      if(reg == 8) //I don't think we really need this but the different comment is good for debugging
       {
         emitRM("LDC", 0, tree.value, 0, "(call seq) move constant parameter " + tree.value + " to r0");
-      //  emitRM("ST", 0, fpOff + initFO, FP_REG, "(call seq) move r0 to memory");
-        //fpOff--;
       }
       return 0;
       
@@ -430,14 +435,6 @@ public class TableGenerator
          comment("conditional test");
          emitRO("SUB", 0, 0, 1, "op test. store result in r0");
     }
-    
-  /*  if(spaces == 8) //Calculating this for a function parameter eg. x = functionOne(1 * 2)
-    {
-        emitRM("ST", 0, fpOff + initFO, FP_REG, "(call seq) move r0 to memory");
-        //fpOff--;
-    } */
-
-
     return LHS;
      
   }
@@ -465,14 +462,8 @@ public class TableGenerator
       generateTable( tree.typ, spaces );
       
       int offset = scope == 0 ? gpOff : fpOff; //Use gp if it's a global var, fp otherwise
-      
-      //spaces = 8 => it's a dec in a function parameter     
-  //    if(spaces == 8)//According to Slide 7, parameters are stored at fp - initFO
-   //   {
-  //     offset+= initFO;
-  //    }
-      
-      if(!SymTable.insert(tree.name, tree.typ.typ, 1, scope, offset))
+            
+      if(!SymTable.insert(tree.name, tree.typ.typ, 1, scope, offset, pc))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
       }
@@ -566,22 +557,26 @@ public class TableGenerator
 
   private static void emitRM(String opcode, int r, int d, int s, String comment)
   {
-    System.out.println(opcode + " " + r + ", " + d + "(" + s + ")       *" + comment);
+    System.out.println(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")       *" + comment);
+    pc++;
   }
   
   private static void emitRM(String opcode, int r, int d, int s)
   {
-    System.out.println(opcode + " " + r + ", " + d + "(" + s + ")");
+    System.out.println(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")");
+    pc++;
   }
   
   private static void emitRO(String opcode, int r, int s, int t, String comment)
   {
-      System.out.println(opcode + " " + r + ", " + s + ", "  + t + "       *" + comment);
+      System.out.println(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *" + comment);
+      pc++;
   }
   
   private static void emitRO(String opcode, int r, int s, int t)
   {
-      System.out.println(opcode + " " + r + ", " + s + ", "  + t + "       *");
+      System.out.println(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *");
+      pc++;
   }
   
    

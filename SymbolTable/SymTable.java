@@ -11,9 +11,9 @@ public class SymTable
 {
     static HashMap<String, Entry> hashMap = new HashMap<String, Entry>();
     
-    public static Boolean insert(String name, int type, int dim, int scope, int offset)
+    public static Boolean insert(String name, int type, int dim, int scope, int offset, int pc)
     {
-        Entry entry = new Entry(type, scope, dim, null, offset);
+        Entry entry = new Entry(type, scope, dim, null, offset, pc);
         
         Entry existingEntry = lookup(name);
         
