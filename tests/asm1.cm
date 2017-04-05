@@ -1,11 +1,12 @@
-/* Went through this manually and it works -- minus the jump */
-void functionOne(int b)
-{
-    functionOne(b);
-}
-
 void main(void)
 {   
     int a;
-    functionOne(a);
+    if(a == 1)
+    {
+        a = 2;
+    }
+    else
+    {
+        a = 3;
+    }
 }

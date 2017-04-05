@@ -1,0 +1,55 @@
+--The output is going to file now because I needed to for the jumping--
+--Unpatched code is in: UNPATCHED.asm
+--Patched code is in: PATCHED.asm
+
+I think I've got jumping working for jumping over function bodies, function calls, and if-statements. I'm too braindead now to actually test it much but when you can run some tests to see if it's actually right.
+
+
+Here's what I'm doing for skipping bodies:
+
+-enter the FunctionDec
+-Let it put itself in the symbol table
+-emitJUMP() to place a jump placeholder. Placeholders are formatted like JUMP|jumpNumber|currentPC|comment
+-run all of the function stuff
+-when it's done, emitLAND() right after the function with a similar placeholder
+
+
+
+for function calls:
+
+-this didn't actually need any fancy patching. Since the functions are always declared before you call them, it's easy
+ to store where the function is then jump to it
+ 
+ 
+ 
+for if-statement:
+
+-if there is an 'else'
+-emitJUMP() with with the jump code. eg. JNE|jumpNumber|currentPC|comment
+-run the 'then' part
+-then emit a LAND right after the 'then' finishes
+-then run the 'else' like normal
+
+-if there is no else
+-emitJMP()
+-run the 'then'
+-emit LAND
+
+as I'm writing this it looks like the two can be combined but whatever
+
+
+
+
+
+
+Patcher:
+
+    basically the patcher scans through and collects the starting location of every JUMP (the emitJUMP) and the matching LAND location (emitLAND) of each pair of matching jumpNumbers.
+    Then it really just calculates the difference and prints the proper ASM code.
+
+
+
+
+
+
+

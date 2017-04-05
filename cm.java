@@ -3,6 +3,7 @@ import java.util.*;
 
 import absyn.*;
 import AssemblyGen.*;
+import Patcher.*;
 
 public class cm {
 
@@ -25,6 +26,8 @@ public class cm {
     {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Object result = p.parse().value;
+      
+      Patcher.Run("UNPATCHED.asm");
       
       //currently just prints the result, doesn't write to file yet
      // System.out.println(AssemblyGen.generateAssembly((DecList)result));

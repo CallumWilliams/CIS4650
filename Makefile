@@ -11,7 +11,7 @@ all: cm.class TURING
 TURING:
 	gcc -w tm.c -o tm
 
-cm.class: absyn/*.java SymbolTable/*.java AssemblyGen/*.java parser.java sym.java Lexer.java cm.java
+cm.class: absyn/*.java Patcher/*.java SymbolTable/*.java AssemblyGen/*.java parser.java sym.java Lexer.java cm.java
 
 %.class: %.java
 	$(JAVAC) $(CLASSPATH)  $^
@@ -29,7 +29,7 @@ cm.java:
 	$(JAVAC) $(CLASSPATH) $(MAIN)
 	
 clean:
-	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~ SymbolTable/*.class AssemblyGen/*.class *~ tm
+	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~ Patcher/*.class SymbolTable/*.class AssemblyGen/*.class *~ tm
 
 #shortcuts for running Checkpoint 1 tests
 test1:

@@ -3,6 +3,8 @@ package SymbolTable;
 import absyn.*;
 import SymbolTable.*;
 
+import java.io.FileWriter;
+
 
 public class TableGenerator
 {
@@ -32,6 +34,11 @@ public class TableGenerator
                                //This keeps track of that
                                
   static int pc = 0;
+  static int jumpCount = 0;
+  
+  
+  static FileWriter writer = null;
+  static String outputFile = "UNPATCHED.asm";
   ////////
   
              
@@ -41,27 +48,41 @@ public class TableGenerator
   
   static public void generateTable( DecList tree, int spaces, Boolean draw ) {
       
+      try
+      {
+        writer = new FileWriter(outputFile); 
+      }
+      catch(Exception ex)
+      {
+        
+      }
+      
+      //Patcher.Run("Patcher/test.txt");
+      //if(true) return;
+      
       drawTable = draw;
-      SymTable.insert("input", 0, 1, 0, gpOff, 999); //Set these PC's manually 
+      SymTable.insert("input", 0, 1, 0, gpOff, 4); 
       gpOff--;
-      SymTable.insert("output", 1, 1, 0, gpOff, 999);
+      SymTable.insert("output", 1, 1, 0, gpOff, 7);
       gpOff--;
       
       //Just commented out to keep output tidy for debugging
-   /*   comment("Standard prelude:");
+      comment("Standard prelude:");
       emitRM("LD", 6, 0, 0);
       emitRM("LDA", 5, 0, 6);
       emitRM("ST", 0, 0, 0);
+      //Input
+      emitRM("LDA", PC_REG, 7, PC_REG, "jump around the IO routines");
       emitRM("ST", 0, -1, 5);
       emitRM("IN", 0, 0, 0);
       emitRM("LD", 7, -1, 5);
+      //output
       emitRM("ST", 0, -1, 5);
       emitRM("LD", 0, -2, 5);
       emitRM("OUT", 0, 0, 0);
       emitRM("LD", 7, -1, 5);
-      emitRM("LDA", 7, 7, 7);
-      
-      comment("End of standard prelude");*/ 
+     // emitRM("LDA", 7, 7, 7);   
+      comment("End of standard prelude");
 
       
       
@@ -77,10 +98,24 @@ public class TableGenerator
       emitRM("LDA", 5, -1, 5, "push frame");
       emitRM("LDA", 0, 1, 7, "load ac with ret ptr");
       //emitRM("LDA", 7, -35, 7, "jump to main loc");
-      System.out.println("JUMP TO MAIN");
+      Entry e = SymTable.lookup("main");
+
+      int difference = e.pc - pc; //Calculate the distance between the two
+                                    //and use it to jump
+      emitRM("LDA", PC_REG, difference - 1, PC_REG, "jump to main");
+      
       emitRM("LD", 5, 0, 5, "pop frame");
       emitRO("HALT", 0, 0, 0, "terminate");
       comment("End of finale");
+      
+      try
+      {
+        writer.close();
+      }
+      catch(Exception ex)
+      {
+      
+      }
       
   }
   
@@ -182,10 +217,10 @@ public class TableGenerator
       if ( tree.size != null) array_size = tree.size.value;
       if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope, fpOff, pc))
       {
-		for (int i = 0; i < array_size; i++) {
-			System.out.println("Added " + i);
-			fpOff--;
-		}
+        for (int i = 0; i < array_size; i++) {
+            System.out.println("Added " + i);
+            fpOff--;
+        }
         System.err.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
       }
       
@@ -207,18 +242,18 @@ public class TableGenerator
       Var v = tree.lhs.variable;
       //issue here - calculating iv.index without knowing values in preprocessor
       if (v instanceof IndexVar) {
-		  /*IndexVar iv = (IndexVar)tree.lhs.variable;
-		  String vname = iv.name;
-		  int offset = SymTable.getOffset(vname) - iv.index;
-		  emitRM("ST", 1, 
-		  emitRM("ST", 0, offset, FP_REG, "move r0 in to " + vname + "[" + iv.index + "]");*/
-	  } else {
-		  /*SimpleVar sv = (SimpleVar)tree.lhs.variable;
-		  String vname = sv.name;
-		  int offset = SymTable.getOffset(vname);
-		  emitRM("ST", 0, offset, FP_REG, "move r0 in to " + vname);*/
-	  
-	  }
+          /*IndexVar iv = (IndexVar)tree.lhs.variable;
+          String vname = iv.name;
+          int offset = SymTable.getOffset(vname) - iv.index;
+          emitRM("ST", 1, 
+          emitRM("ST", 0, offset, FP_REG, "move r0 in to " + vname + "[" + iv.index + "]");*/
+      } else {
+          SimpleVar sv = (SimpleVar)tree.lhs.variable;
+          String vname = sv.name;
+          int offset = SymTable.getOffset(vname);
+          emitRM("ST", 0, offset, FP_REG, "move r0 in to " + vname);
+      
+      }
      return LHS;
       
   }
@@ -226,7 +261,7 @@ public class TableGenerator
   static private int generateTable( CallExp tree, int spaces ) {
       comment("<- call " + tree.func);  
       generateTable( tree.args, 8 );
-	  
+      
       Entry e = SymTable.lookup(tree.func);
       if(e == null)
       {
@@ -236,14 +271,19 @@ public class TableGenerator
       }
       else
       {
-		//is this right at all? (lec. 11, slide 9)
+        //is this right at all? (lec. 11, slide 9)
 
-		emitRM("ST", FP_REG, fpOff--, FP_REG, "store current fp");
-		emitRM("LDA", FP_REG, fpOff + 1, FP_REG, "push new frame");
-		emitRM("LDA", 0, 1, PC_REG, "save return in r0");
-		//emitRM() relative jump to function entry, have we stored the file lines of each function?
-		System.out.println("JUMP TO " + tree.func);
-		emitRM("LD", FP_REG, ofpFO, FP_REG, "pop current frame");
+
+        
+        emitRM("ST", FP_REG, fpOff--, FP_REG, "store current fp");
+        emitRM("LDA", FP_REG, fpOff + 1, FP_REG, "push new frame");
+        emitRM("LDA", 0, 1, PC_REG, "save return in r0");
+        
+        int difference = e.pc - pc; //Calculate the distance between the two
+                                    //and use it to jump
+        emitRM("LDA", PC_REG, difference - 1, PC_REG, "jump to " + tree.func);
+        
+        emitRM("LD", FP_REG, ofpFO, FP_REG, "pop current frame");
         return e.type;
       }
     
@@ -268,19 +308,27 @@ public class TableGenerator
   static private void generateTable( FunctionDec tree, int spaces ) {
       
       
-      System.out.println("JUMP OVER " + tree.func + " HERE");
+
       
       comment("processing function: " + tree.func); 
       fpOff = -2;
-      emitRM("ST", 0, retFO, FP_REG, "move return addr from r0 to memory");
+
 
 
       expectedReturn = generateTable(tree.result, spaces); 
-      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff, pc))
+      if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff, pc + 1))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
       gpOff--;     
+      
+      
+      int jumpNum = jumpCount; //save the jump number
+      
+      emitJUMP(jumpNum, pc, "Jump over " + tree.func + " body");
+      pc++;
+      jumpCount++;
+      emitRM("ST", 0, retFO, FP_REG, "move return addr from r0 to memory");
       
       enterScope(tree.func);
       generateTable( tree.params, 8 );
@@ -294,7 +342,7 @@ public class TableGenerator
       }
       
       emitRM("LD", PC_REG, retFO, FP_REG);
-      System.out.println("LAND AFTER " + tree.func + " HERE\n\n");
+      emitLAND(jumpNum, pc);
       
   }
   
@@ -307,42 +355,87 @@ public class TableGenerator
        OpExp testExp = (OpExp)tree.test;
        if(tree.elsepart != null)
        {
+               int jumpNum = jumpCount;
+            jumpCount++;
            //If there's an else, we supposed to jump to the true branch or fall through to the else
            
            //Callum note - Our jump conditions need to be inverted
            //E.x. if (x == 0), we want to "jump" when x is not equal to 0, and run execution after jump. 
            //if it's true, no jump (until end of if statement), and run normally
            if(testExp.op == OpExp.EQLTY) {
-                emitRM("JNE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-                generateTable( tree.elsepart, spaces );
+                //emitRM("JNE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+               // generateTable( tree.elsepart, spaces );
+               emitJUMP("JNE", jumpNum, pc, "JNE jump");
            } else if (testExp.op == OpExp.NE) {
-			   emitRM("JEQ", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-			   generateTable( tree.elsepart, spaces );
-		   } else if (testExp.op == OpExp.LT) {
-			   emitRM("JGE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-			   generateTable( tree.elsepart, spaces );
-		   } else if (testExp.op == OpExp.LE) {
-			   emitRM("JGT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-			   generateTable( tree.elsepart, spaces );
-		   } else if (testExp.op == OpExp.GT) {
-			   emitRM("JLE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-			   generateTable( tree.elsepart, spaces );
-		   } else if (testExp.op == OpExp.GE) {
-			   emitRM("JLT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-			   generateTable( tree.elsepart, spaces );
-		   } 
+                emitJUMP("JEQ", jumpNum, pc, "JEQ jump");
+           } else if (testExp.op == OpExp.LT) {
+                emitJUMP("JGE", jumpNum, pc, "JGE jump");
+           } else if (testExp.op == OpExp.LE) {
+                emitJUMP("JGT", jumpNum, pc, "JGT jump");
+           } else if (testExp.op == OpExp.GT) {
+                emitJUMP("JLE", jumpNum, pc, "JLE jump");
+           } else if (testExp.op == OpExp.GE) {
+                emitJUMP("JLT", jumpNum, pc, "JLT jump");
+           } 
+           
+               pc++;
+            generateTable( tree.thenpart, spaces );
+               emitLAND(jumpNum, pc);
+            generateTable( tree.elsepart, spaces );
+
            
        }
        else //if statement with no else part
        {
-			//Callum note - same jumping as before, except we're just jumping over the whole conditional
-			//again, how do we know how far we need to jump?
-			if(testExp.op == OpExp.EQLTY) emitRM("JNE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-            else if (testExp.op == OpExp.NE) emitRM("JEQ", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-		    else if (testExp.op == OpExp.LT) emitRM("JGE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-		    else if (testExp.op == OpExp.LE) emitRM("JGT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-		    else if (testExp.op == OpExp.GT) emitRM("JLE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-		    else if (testExp.op == OpExp.GE) emitRM("JLT", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
+            //Callum note - same jumping as before, except we're just jumping over the whole conditional
+            //again, how do we know how far we need to jump?
+            int jumpNum = jumpCount;
+            jumpCount++;
+            if(testExp.op == OpExp.EQLTY) 
+            {
+                emitJUMP("JNE", jumpNum, pc, "JNE jump");
+        /*        pc++;
+                generateTable( tree.thenpart, spaces );
+                emitLAND(jumpNum, pc);*/
+            }
+            else if (testExp.op == OpExp.NE) 
+            {
+                emitJUMP("JEQ", jumpNum, pc, "JEQ jump");
+            /*    pc++;
+                generateTable( tree.thenpart, spaces );
+                emitLAND(jumpNum, pc);*/
+            }
+            else if (testExp.op == OpExp.LT)
+            {
+                emitJUMP("JGE", jumpNum, pc, "JGE jump");
+        /*        pc++;
+                generateTable( tree.thenpart, spaces );
+                emitLAND(jumpNum, pc);*/
+            }
+            else if (testExp.op == OpExp.LE)
+            {
+                emitJUMP("JGT", jumpNum, pc, "JGT jump");
+            /*    pc++;
+                generateTable( tree.thenpart, spaces );
+                emitLAND(jumpNum, pc);*/
+            }
+            else if (testExp.op == OpExp.GT)
+            {
+                emitJUMP("JLE", jumpNum, pc, "JLE jump");
+            /*    pc++;
+                generateTable( tree.thenpart, spaces );
+                emitLAND(jumpNum, pc);*/
+            }
+            else if (testExp.op == OpExp.GE)
+            {
+                emitJUMP("JLT", jumpNum, pc, "JLT jump");
+            /*    pc++;
+                generateTable( tree.thenpart, spaces );
+                emitLAND(jumpNum, pc);*/
+            }
+            pc++;
+            generateTable( tree.thenpart, spaces );
+            emitLAND(jumpNum, pc);
        }
      
 
@@ -362,13 +455,13 @@ public class TableGenerator
       
    
       int INDEX = generateTable( tree.index, spaces );
-	  
-	  if (INDEX != 0)
-	  {
-		  System.err.println("");
-		  System.err.println("Error: Line " + (tree.pos+1) + ". Index for'" + tree.name + "' not int.");
-	  }
-	  
+      
+      if (INDEX != 0)
+      {
+          System.err.println("");
+          System.err.println("Error: Line " + (tree.pos+1) + ". Index for'" + tree.name + "' not int.");
+      }
+      
       Entry e = SymTable.lookup(tree.name);
       if(e == null)
       {
@@ -571,34 +664,111 @@ public class TableGenerator
 
   private static void emitRM(String opcode, int r, int d, int s, String comment)
   {
-    System.out.println(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")       *" + comment);
+    //System.out.println(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")       *" + comment);
+    try
+    {
+        writer.write(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")       *" + comment + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
+
     pc++;
   }
   
   private static void emitRM(String opcode, int r, int d, int s)
   {
-    System.out.println(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")");
+    //System.out.println(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")");
+    try
+    {
+        writer.write(pc + ":  " + opcode + " " + r + ", " + d + "(" + s + ")" + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
     pc++;
   }
   
   private static void emitRO(String opcode, int r, int s, int t, String comment)
   {
-      System.out.println(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *" + comment);
+      //System.out.println(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *" + comment);
+    try
+    {
+        writer.write(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *" + comment + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
       pc++;
   }
   
   private static void emitRO(String opcode, int r, int s, int t)
   {
-      System.out.println(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *");
-      pc++;
+      //System.out.println(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *");
+    try
+    {
+        writer.write(pc + ":  " + opcode + " " + r + ", " + s + ", "  + t + "       *" + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
+    pc++;
   }
   
-   
-   
-   
+  private static void emitJUMP(int jumpNum, int pc, String comment)
+  {
+    try
+    {
+        writer.write("JUMP|" + jumpNum + "|" + pc + "|" + comment + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
+    pc++;
+  }
+  
+  private static void emitJUMP(String jumpCode, int jumpNum, int pc, String comment)
+  {
+    try
+    {
+        writer.write(jumpCode + "|" + jumpNum + "|" + pc + "|" + comment + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
+    pc++;
+  }
+  
+  private static void emitLAND(int jumpNum, int pc)
+  {
+    try
+    {
+        writer.write("LAND|" + jumpNum + "|" + pc + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
+  }
+  
+  
+
   private static void comment(String s)
   {
-    System.out.println("* " + s);
+    try
+    {
+        writer.write("* " + s + "\n");
+    }
+    catch(Exception ex)
+    {
+    
+    }
   } 
 
 
