@@ -254,7 +254,7 @@ public class TableGenerator
   static private void generateTable( FunctionDec tree, int spaces ) {
       
       
-      if(!tree.func.equals("main")) System.out.println("JUMP OVER " + tree.func + " HERE");
+      System.out.println("JUMP OVER " + tree.func + " HERE");
       
       comment("processing function: " + tree.func); 
       fpOff = -2;
@@ -280,7 +280,7 @@ public class TableGenerator
       }
       
       emitRM("LD", PC_REG, retFO, FP_REG);
-      if(!tree.func.equals("main")) System.out.println("LAND AFTER " + tree.func + " HERE\n\n");
+      System.out.println("LAND AFTER " + tree.func + " HERE\n\n");
       
   }
   
