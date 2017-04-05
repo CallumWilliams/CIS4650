@@ -79,7 +79,7 @@ public class Patcher
                     if(jumpCode.equals("JUMP"))
                         lines.set(i, pc + ":  LDA 7, " + (difference - 1) + "(7)      *" + comments[jumpNum]);
                     else
-                        lines.set(i, pc + ":  " + jumpCode + " 7, " + (difference -1) + "(7)      *" + comments[jumpNum]); 
+                        lines.set(i, pc + ":  " + jumpCode + " 0, " + (difference -1) + "(7)      *" + comments[jumpNum]); 
                 }   
             }
             if(s.contains("LAND"))

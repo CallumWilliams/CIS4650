@@ -378,10 +378,15 @@ public class TableGenerator
                 emitJUMP("JLT", jumpNum, pc, "JLT jump");
            } 
            
-               pc++;
+            pc++;
             generateTable( tree.thenpart, spaces );
-               emitLAND(jumpNum, pc);
+            emitLAND(jumpNum, pc + 1);
+            jumpNum = jumpCount;
+            jumpCount++;
+            emitJUMP("JUMP", jumpNum, pc, "jump over else part");
+            pc++;
             generateTable( tree.elsepart, spaces );
+            emitLAND(jumpNum, pc);
 
            
        }
@@ -394,44 +399,26 @@ public class TableGenerator
             if(testExp.op == OpExp.EQLTY) 
             {
                 emitJUMP("JNE", jumpNum, pc, "JNE jump");
-        /*        pc++;
-                generateTable( tree.thenpart, spaces );
-                emitLAND(jumpNum, pc);*/
             }
             else if (testExp.op == OpExp.NE) 
             {
                 emitJUMP("JEQ", jumpNum, pc, "JEQ jump");
-            /*    pc++;
-                generateTable( tree.thenpart, spaces );
-                emitLAND(jumpNum, pc);*/
             }
             else if (testExp.op == OpExp.LT)
             {
                 emitJUMP("JGE", jumpNum, pc, "JGE jump");
-        /*        pc++;
-                generateTable( tree.thenpart, spaces );
-                emitLAND(jumpNum, pc);*/
             }
             else if (testExp.op == OpExp.LE)
             {
                 emitJUMP("JGT", jumpNum, pc, "JGT jump");
-            /*    pc++;
-                generateTable( tree.thenpart, spaces );
-                emitLAND(jumpNum, pc);*/
             }
             else if (testExp.op == OpExp.GT)
             {
                 emitJUMP("JLE", jumpNum, pc, "JLE jump");
-            /*    pc++;
-                generateTable( tree.thenpart, spaces );
-                emitLAND(jumpNum, pc);*/
             }
             else if (testExp.op == OpExp.GE)
             {
                 emitJUMP("JLT", jumpNum, pc, "JLT jump");
-            /*    pc++;
-                generateTable( tree.thenpart, spaces );
-                emitLAND(jumpNum, pc);*/
             }
             pc++;
             generateTable( tree.thenpart, spaces );
