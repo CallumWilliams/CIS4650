@@ -15,7 +15,7 @@ public class Entry
         this.type = type;
         this.dim = dimensions;
         this.next = next;
-        this.offset = offset;
+        this.offset = offset*dimensions;
         this.pc = pc;
     } 
 }

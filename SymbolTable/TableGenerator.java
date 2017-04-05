@@ -175,24 +175,25 @@ public class TableGenerator
   
   static private void generateTable( ArrayDec tree, int spaces ) {
       
-
       int array_size = 1;
+      int reg = spaces;
+      int offset = SymTable.getOffset(tree.name);
       generateTable( tree.typ, spaces );
       if ( tree.size != null) array_size = tree.size.value;
       if(!SymTable.insert(tree.name, tree.typ.typ, array_size, scope, fpOff, pc))
       {
+		for (int i = 0; i < array_size; i++) {
+			System.out.println("Added " + i);
+			fpOff--;
+		}
         System.err.println("\nError: Line " + (tree.pos + 1) + ". Redefinition of '" + tree.name + "'.");
       }
-      fpOff--;
       
   }
   
   static private int generateTable( AssignExp tree, int spaces ) {
        
       comment("AssignExp"); 
-      SimpleVar sv = (SimpleVar)tree.lhs.variable;
-      String varName = sv.name;
-      int offset = SymTable.getOffset(varName);
     
       int LHS = generateTable(tree.lhs, -1);
       int RHS = generateTable(tree.rhs, 0); //This will store the result of RHS in a register (I chose r0 for now)
@@ -203,8 +204,21 @@ public class TableGenerator
         return -1;
       }
       
-
-     emitRM("ST", 0, offset, FP_REG, "move r0 in to " + varName); //This is the code to move the value of r0 to value of the variable;  
+      Var v = tree.lhs.variable;
+      //issue here - calculating iv.index without knowing values in preprocessor
+      if (v instanceof IndexVar) {
+		  /*IndexVar iv = (IndexVar)tree.lhs.variable;
+		  String vname = iv.name;
+		  int offset = SymTable.getOffset(vname) - iv.index;
+		  emitRM("ST", 1, 
+		  emitRM("ST", 0, offset, FP_REG, "move r0 in to " + vname + "[" + iv.index + "]");*/
+	  } else {
+		  /*SimpleVar sv = (SimpleVar)tree.lhs.variable;
+		  String vname = sv.name;
+		  int offset = SymTable.getOffset(vname);
+		  emitRM("ST", 0, offset, FP_REG, "move r0 in to " + vname);*/
+	  
+	  }
      return LHS;
       
   }
