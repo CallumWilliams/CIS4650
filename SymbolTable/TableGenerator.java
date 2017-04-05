@@ -74,12 +74,12 @@ public class TableGenerator
       //Input
       emitRM("LDA", PC_REG, 7, PC_REG, "jump around the IO routines");
       emitRM("ST", 0, -1, 5);
-      emitRM("IN", 0, 0, 0);
+      emitRO("IN", 0, 0, 0);
       emitRM("LD", 7, -1, 5);
       //output
       emitRM("ST", 0, -1, 5);
       emitRM("LD", 0, -2, 5);
-      emitRM("OUT", 0, 0, 0);
+      emitRO("OUT", 0, 0, 0);
       emitRM("LD", 7, -1, 5);
      // emitRM("LDA", 7, 7, 7);   
       comment("End of standard prelude");

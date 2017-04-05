@@ -2,7 +2,6 @@ import java.io.*;
 import java.util.*;
 
 import absyn.*;
-import AssemblyGen.*;
 import Patcher.*;
 
 public class cm {
