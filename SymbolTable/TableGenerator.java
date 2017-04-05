@@ -17,19 +17,19 @@ public class TableGenerator
   
   
   //Assembly stuff
-  static int gp = 100, //Top of memory. NEEDS REAL INITIALISATION
-             fp = 0,
-             fpOff = 0,
-             gpOff = 0,
-             pc = 0;
+  static int fpOff = 0,
+             gpOff = 0;
 
   final static int PC_REG = 7,
                    GP_REG = 6,
                    FP_REG = 5;
 
-  static int ofpFO = 0,   //I don't think these change
-             retFO = -1,
-             initFO = -2;          
+  static final int ofpFO = 0,   //I don't think these change
+                   retFO = -1,
+                   initFO = -2;          
+             
+  static int paramsOffset = 0; //Each paramater stored needs to be 1 lower in memory than the last.
+                               //This keeps track of that
   ////////
   
              
@@ -45,7 +45,8 @@ public class TableGenerator
       SymTable.insert("output", 1, 1, 0, gpOff);
       gpOff--;
       
-      comment("Standard prelude:");
+      //Just commented out to keep output tidy for debugging
+   /*   comment("Standard prelude:");
       emitRM("LD", 6, 0, 0);
       emitRM("LDA", 5, 0, 6);
       emitRM("ST", 0, 0, 0);
@@ -58,7 +59,7 @@ public class TableGenerator
       emitRM("LD", 7, -1, 5);
       emitRM("LDA", 7, 7, 7);
       
-      comment("End of standard prelude");
+      comment("End of standard prelude");*/ 
 
       
       
@@ -68,21 +69,33 @@ public class TableGenerator
           tree = tree.tail;
       }
       
-      comment("Finale");
+      //Just commented out to keep output tidy for debugging
+      /*comment("Finale");
       emitRM("ST", 5, -1, 5, "push ofp");
       emitRM("LDA", 5, -1, 5, "push frame");
       emitRM("LDA", 0, 1, 7, "load ac with ret ptr");
       emitRM("LDA", 7, -35, 7, "jump to main loc");
       emitRM("LD", 5, 0, 5, "pop frame");
       emitRO("HALT", 0, 0, 0, "terminate");
-      comment("End of finale");
+      comment("End of finale");*/
       
   }
   
   static public void generateTable( ExpList tree, int spaces ) {
+  
+      if(spaces == 8) paramsOffset = 0; //reset for a new function's parameter list
       
-      while (tree != null) {
+      while (tree != null) 
+      {
           generateTable( tree.head, spaces );
+          
+                    
+          if(spaces == 8)
+          {
+            emitRM("ST", 0, fpOff + initFO + paramsOffset, FP_REG, "(call seq) move r0 to memory");
+            paramsOffset--;
+          }
+          
           tree = tree.tail;
       }
       
@@ -90,8 +103,9 @@ public class TableGenerator
   
   static public void generateTable( VarDecList tree, int spaces ) {
       
-      while (tree != null) {
-          generateTable( tree.head, spaces );
+      while (tree != null) 
+      {
+          generateTable( tree.head, spaces );   
           tree = tree.tail;
       }
       
@@ -187,14 +201,14 @@ public class TableGenerator
       }
       
 
-     emitRM("ST", 0, offset, FP_REG, "load r0 in to " + varName); //This is the code to move the value of r0 to value of the variabl;  
+     emitRM("ST", 0, offset, FP_REG, "move r0 in to " + varName); //This is the code to move the value of r0 to value of the variable;  
      return LHS;
       
   }
   
   static private int generateTable( CallExp tree, int spaces ) {
-      
-      generateTable( tree.args, spaces );
+      comment("<- call " + tree.func);  
+      generateTable( tree.args, 8 );
 	  
       Entry e = SymTable.lookup(tree.func);
       if(e == null)
@@ -206,12 +220,13 @@ public class TableGenerator
       else
       {
 		//is this right at all? (lec. 11, slide 9)
-		comment("<- call " + tree.func);
-		emitRM("ST", fp, e.offset+ofpFO, fp, "store current fp");
-		emitRM("LDA", fp, e.offset, fp, "push new frame");
-		emitRM("LDA", 0, 1, pc, "save return in ac");
+
+		emitRM("ST", FP_REG, fpOff--, FP_REG, "store current fp");
+		emitRM("LDA", FP_REG, fpOff + 1, FP_REG, "push new frame");
+		emitRM("LDA", 0, 1, PC_REG, "save return in r0");
 		//emitRM() relative jump to function entry, have we stored the file lines of each function?
-		emitRM("LD", fp, ofpFO, fp, "pop current frame");
+		System.out.println("Jump to " + tree.func);
+		emitRM("LD", FP_REG, ofpFO, FP_REG, "pop current frame");
         return e.type;
       }
     
@@ -237,23 +252,19 @@ public class TableGenerator
       
       
       comment("processing function: " + tree.func); 
-      emitRM("ST", 0, -1, 5, "store return"); //He has this at the start of every function so I just copied it
+      fpOff = -2;
+      emitRM("ST", 0, retFO, FP_REG, "move return addr from r0 to memory");
+
 
       expectedReturn = generateTable(tree.result, spaces); 
       if(!SymTable.insert(tree.func, tree.result.typ, 1, scope, gpOff))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.func + "'.");
       }
-      gpOff--;
-      
-      fp = gp + gpOff;   //Set fp to the next empty spot in memory
-                         //I think we need to actually change the fp register or something
-      
-      fpOff = 0;
-      
+      gpOff--;     
       
       enterScope(tree.func);
-      generateTable( tree.params, spaces );
+      generateTable( tree.params, 8 );
       scope--;
       generateTable( tree.body, spaces );
       
@@ -355,8 +366,16 @@ public class TableGenerator
   
   static private int generateTable( IntExp tree, int spaces ) {
       
+      //0 or 1 = store it in a register
+      //8 = store it in to a register then load it in to memory (for argument parameters)
       int reg = spaces;
-      if(reg != -1) emitRM("LDC", reg, tree.value, 0, "moving literal " + tree.value + " to r" + reg);
+      if(reg == 0 || reg == 1) emitRM("LDC", reg, tree.value, 0, "moving literal " + tree.value + " to r" + reg);
+      if(reg == 8)
+      {
+        emitRM("LDC", 0, tree.value, 0, "(call seq) move constant parameter " + tree.value + " to r0");
+      //  emitRM("ST", 0, fpOff + initFO, FP_REG, "(call seq) move r0 to memory");
+        //fpOff--;
+      }
       return 0;
       
   }
@@ -399,6 +418,7 @@ public class TableGenerator
     
     emitRM("LD", 0, tmpOffset1, FP_REG, "move LHS from tmp storage to r0");
     emitRM("LD", 1, tmpOffset2, FP_REG, "move RHS from tmp storage to r1");
+    fpOff += 2; //Free up the temporary storage
     
     
     if(tree.op == OpExp.PLUS)        emitRO("ADD", 0, 0, 1, "r0 add r1. store result in r0");
@@ -408,9 +428,15 @@ public class TableGenerator
     else
     {
          comment("conditional test");
-         emitRO("SUB", 0, 0, 1, "op test: == store result in r0");
+         emitRO("SUB", 0, 0, 1, "op test. store result in r0");
     }
     
+  /*  if(spaces == 8) //Calculating this for a function parameter eg. x = functionOne(1 * 2)
+    {
+        emitRM("ST", 0, fpOff + initFO, FP_REG, "(call seq) move r0 to memory");
+        //fpOff--;
+    } */
+
 
     return LHS;
      
@@ -440,6 +466,12 @@ public class TableGenerator
       
       int offset = scope == 0 ? gpOff : fpOff; //Use gp if it's a global var, fp otherwise
       
+      //spaces = 8 => it's a dec in a function parameter     
+  //    if(spaces == 8)//According to Slide 7, parameters are stored at fp - initFO
+   //   {
+  //     offset+= initFO;
+  //    }
+      
       if(!SymTable.insert(tree.name, tree.typ.typ, 1, scope, offset))
       {
         System.err.println("\nError: Line " + (tree.pos+1) + ". Redefinition of '" + tree.name + "'.");
@@ -452,12 +484,17 @@ public class TableGenerator
   static private int generateTable( SimpleVar tree, int spaces) {
     
     
-      //comment("Simple var: " + tree.name);
       int reg = spaces;
-      if(reg != -1)
+      int offset = SymTable.getOffset(tree.name);
+      if(reg == 0 || reg == 1)
       {
-        int offset = SymTable.getOffset(tree.name);
         emitRM("LD", reg, offset, FP_REG, "move value of " + tree.name + " in to r" + reg);
+      }
+      if(reg == 8)//When it's an argument to a function
+      {
+        emitRM("LD", 0, offset, FP_REG, "(call seq) move value of " + tree.name + " in to r0");
+     //   emitRM("ST", 0, fpOff + initFO, FP_REG, "(call seq) move r0 to memory");
+        //fpOff--;
       }
       
       Entry e = SymTable.lookup(tree.name);
