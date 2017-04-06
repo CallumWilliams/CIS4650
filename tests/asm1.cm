@@ -31,5 +31,17 @@ int test(int a, int b)
 
 void main(void)
 {
-    output(test(1, 10));
+    int a;
+    int b;
+    a = 100;
+    b = 200;
+    
+    {
+        int c;
+        c = 90;
+        output(a + b + c);
+        
+    
+    }
+    
 }

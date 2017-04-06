@@ -152,10 +152,10 @@ public class SymTable
                     if (dimensions > 1) p.text += "[" + dimensions + "]";
 				}
 				
-				if(scope == 0)
+	/*			if(scope == 0)
 				    p.text += "|gp offset:" + offset; //Debugging
 				else
-				    p.text += "|fp offset:" + offset; //Debugging    
+				    p.text += "|fp offset:" + offset; //Debugging    */
 				toPrint.add(p);
                 e = e.next;
             }

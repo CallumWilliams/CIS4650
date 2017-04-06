@@ -99,7 +99,7 @@ public class Patcher
         try
         {
         
-        FileWriter writer = new FileWriter("PATCHED.asm"); 
+        FileWriter writer = new FileWriter("out.asm"); 
         for(String str: lines)
             writer.write(str + "\n");
         writer.close();   
