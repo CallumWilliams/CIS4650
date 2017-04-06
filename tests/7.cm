@@ -1,0 +1,20 @@
+/* Test 7 - error - redfinition */
+
+
+void main(void)
+{
+    int a;
+    int b;
+    
+    a = 10;
+    b = 100;
+    while(a < b)
+    {
+        int b;  /* This is allowed */
+        void b; /* This isn't */
+        a = a + 1;
+    }
+    
+
+}
+

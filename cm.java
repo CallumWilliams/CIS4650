@@ -30,10 +30,17 @@ public class cm {
       Object result = p.parse().value;
       
       
+      try
+      {
+      
       
       Patcher.Run("UNPATCHED.asm");
       File f = new File("UNPATCHED.asm");
       f.delete();
+      
+      }
+      catch(Exception ex)
+      {}
       
       
       

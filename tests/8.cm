@@ -1,0 +1,18 @@
+/* Test 8 - error - invalid syntax*/
+
+
+void main(void)
+{
+    int a = 10;
+    int b = 100;
+
+    while(a < b)
+    {
+        int b;  /* This is allowed */
+        b = 1;
+        a = a + 1;
+    }
+    
+
+}
+

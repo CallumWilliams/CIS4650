@@ -1,29 +1,13 @@
-/* Test 5 - conditional tests void */
+/* Test 5 - error - simple type mismatch */
 
-int functionOne(void b, int c, int d) {
-	
-	int a;
-	void b;
-	
-	a = c*d;
-	if (b) return a;
-	else return a + functionOne(b, c-1, d);
-	
+
+void main(void)
+{
+    int a;
+    void b;
+    
+    a = b;
+    
+    output(10 * b);
 }
 
-void functionTwo(int count) {
-
-    while (count <= 10) {
-	    count = count + 1;
-	}
-	return;
-}
-
-int main(void) {
-	
-	int x[3];
-	x[0] = functionOne(1, 3, 2); 
-	functionTwo(x[1]);
-	
-	return x[0] + x[1];
-}

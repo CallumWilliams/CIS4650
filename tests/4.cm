@@ -21,10 +21,6 @@ int exponent(int base, int power)
     return c;
 }
 
-
-
-
-
 void main(void)
 {
     int base; 

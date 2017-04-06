@@ -1,0 +1,18 @@
+/* Test 6 - error - undefined functions and variables */
+
+int sub(int a, int b)
+{
+    return a - b;
+}
+
+void main(void)
+{
+    int a;
+    int b;
+    
+    a = add(10, a); /* add is not defined */   
+    
+    c = 2 * a; /* c is not defined */
+    
+}
+

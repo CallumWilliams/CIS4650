@@ -1,0 +1,18 @@
+/* Test 9 - error - typo*/
+
+
+void main(void)
+{
+    int a = 10;
+    int b = 100;
+
+    whie(a < b)
+    {
+        int b;  
+        b = 1;
+        a = a + b;
+    }
+    
+
+}
+
