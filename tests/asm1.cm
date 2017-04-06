@@ -1,18 +1,35 @@
-int add(int a, int b)
+int ack(int x, int y)
 {
-    return a + b;
+    int z;
+    if(x == 0)
+    {
+        return y + 1;
+    }
+    if(y == 0)
+    {
+        return ack(x - 1, 1);
+    }
+    z = ack(x-1, ack(x,y-1));
+    return z;
+
 }
-int funcTwo(void)
+
+
+int test(int a, int b)
 {
-    return 2;
+    if(a == 0)
+    {
+        return b + 1;
+    }
+    if(a == 1)
+    {
+        return b - 1;
+    }
+    return b + 5;
+
 }
-int funcOne(void)
-{
-    return 1;
-}
+
 void main(void)
-{  
-    int a;
-    a = add(1, funcTwo());
-    output(a);
+{
+    output(test(1, 10));
 }

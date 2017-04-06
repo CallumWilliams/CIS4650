@@ -35,7 +35,7 @@ public class TableGenerator
                                
   static int pc = 0;
   static int jumpCount = 0;
-  
+
   
   static FileWriter writer = null;
   static String outputFile = "UNPATCHED.asm";
@@ -556,7 +556,11 @@ public class TableGenerator
       if (tree.exp == null) 
         returnType = 1; //return statement is void
       else 
+      {
         returnType = generateTable(tree.exp, spaces);
+        emitRM("LD", PC_REG, retFO, FP_REG, "Returning");
+      }
+
         
       if(returnType != expectedReturn)
       {
