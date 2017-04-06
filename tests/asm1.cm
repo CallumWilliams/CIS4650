@@ -1,15 +1,18 @@
+int add(int a, int b)
+{
+    return a + b;
+}
+int funcTwo(void)
+{
+    return 2;
+}
+int funcOne(void)
+{
+    return 1;
+}
 void main(void)
-{   
+{  
     int a;
-    a = input();
-    if(a == 1)
-    {
-        output(7);
-        a = 2;
-    }
-    else
-    {
-        a = 3;
-    }
+    a = add(1, funcTwo());
     output(a);
 }

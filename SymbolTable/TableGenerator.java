@@ -39,6 +39,7 @@ public class TableGenerator
   
   static FileWriter writer = null;
   static String outputFile = "UNPATCHED.asm";
+  static int currentFunctions = 0;
   ////////
   
              
@@ -120,22 +121,32 @@ public class TableGenerator
   }
   
   static public void generateTable( ExpList tree, int spaces ) {
-  
-      if(spaces == 8) paramsOffset = 0; //reset for a new function's parameter list
+        
+      int myParams = 0;
+      //if(spaces == 8) paramsOffset = 0; //reset for a new function's parameter list
+      //if(spaces == 8) myParams = 0;
+
       
+      int oldfpOff;
       while (tree != null) 
       {
+          oldfpOff = fpOff;
           generateTable( tree.head, spaces );
+          fpOff = oldfpOff;  
           
-                    
           if(spaces == 8)
           {
-            emitRM("ST", 0, fpOff + initFO + paramsOffset, FP_REG, "(call seq) move r0 to memory");
-            paramsOffset--;
+            emitRM("ST", 0, fpOff + initFO + myParams, FP_REG, "(call seq) move r0 to memory");
+            myParams--;
+            
+            //old way used a static global to maintain. idk why I did that
+            //emitRM("ST", 0, fpOff + initFO + paramsOffset, FP_REG, "(call seq) move r0 to memory");
+            //paramsOffset--;
           }
           
           tree = tree.tail;
       }
+ 
       
   }
   
@@ -260,6 +271,8 @@ public class TableGenerator
   
   static private int generateTable( CallExp tree, int spaces ) {
       comment("<- call " + tree.func);  
+
+      
       generateTable( tree.args, 8 );
       
       Entry e = SymTable.lookup(tree.func);
@@ -271,10 +284,9 @@ public class TableGenerator
       }
       else
       {
-        //is this right at all? (lec. 11, slide 9)
 
 
-        
+       
         emitRM("ST", FP_REG, fpOff--, FP_REG, "store current fp");
         emitRM("LDA", FP_REG, fpOff + 1, FP_REG, "push new frame");
         emitRM("LDA", 0, 1, PC_REG, "save return in r0");
@@ -284,6 +296,10 @@ public class TableGenerator
         emitRM("LDA", PC_REG, difference - 1, PC_REG, "jump to " + tree.func);
         
         emitRM("LD", FP_REG, ofpFO, FP_REG, "pop current frame");
+    
+
+ 
+      comment("-> call " + tree.func);  
         return e.type;
       }
     
@@ -348,14 +364,14 @@ public class TableGenerator
   
   static private int generateTable( IfExp tree, int spaces ) {
       
-       comment("IfExp");
+       comment("<- IfExp");
        
        int TEST = generateTable( tree.test, 0); //Stores result of test in r0
        
        OpExp testExp = (OpExp)tree.test;
        if(tree.elsepart != null)
        {
-               int jumpNum = jumpCount;
+            int jumpNum = jumpCount;
             jumpCount++;
            //If there's an else, we supposed to jump to the true branch or fall through to the else
            
@@ -363,8 +379,6 @@ public class TableGenerator
            //E.x. if (x == 0), we want to "jump" when x is not equal to 0, and run execution after jump. 
            //if it's true, no jump (until end of if statement), and run normally
            if(testExp.op == OpExp.EQLTY) {
-                //emitRM("JNE", 0, 999, 999, "We jump to the true branch, but how do we know the right place to jump to? --Backpatching???");
-               // generateTable( tree.elsepart, spaces );
                emitJUMP("JNE", jumpNum, pc, "JNE jump");
            } else if (testExp.op == OpExp.NE) {
                 emitJUMP("JEQ", jumpNum, pc, "JEQ jump");
@@ -424,6 +438,7 @@ public class TableGenerator
             generateTable( tree.thenpart, spaces );
             emitLAND(jumpNum, pc);
        }
+       comment("-> IfExp");
      
 
 
@@ -470,7 +485,7 @@ public class TableGenerator
       //0 or 1 = store it in a register
       //8 = store it in to a register then load it in to memory (for argument parameters)
       int reg = spaces;
-      if(reg == 0 || reg == 1) emitRM("LDC", reg, tree.value, 0, "moving literal " + tree.value + " to r" + reg);
+      if(reg == 0 || reg == 1) emitRM("LDC", reg, tree.value, 0, "moving constant " + tree.value + " to r" + reg);
       if(reg == 8) //I don't think we really need this but the different comment is good for debugging
       {
         emitRM("LDC", 0, tree.value, 0, "(call seq) move constant parameter " + tree.value + " to r0");
@@ -494,7 +509,7 @@ public class TableGenerator
 
   static private int generateTable( OpExp tree, int spaces ) {
     
-    comment("op exp");
+    comment("<- op exp");
     int LHS = generateTable( tree.left, 0 ); //Stores result in r0   
     int tmpOffset1 = fpOff;
     fpOff--;
@@ -526,9 +541,10 @@ public class TableGenerator
     else if (tree.op == OpExp.DIV)   emitRO("DIV", 0, 0, 1, "r0 div r1. store result in r0");
     else
     {
-         comment("conditional test");
+         //comment("conditional test");
          emitRO("SUB", 0, 0, 1, "op test. store result in r0");
     }
+    comment("-> op exp");
     return LHS;
      
   }
@@ -536,7 +552,7 @@ public class TableGenerator
   static private int generateTable( ReturnExp tree, int spaces ) {
       
       int returnType;
-      
+      comment("<- return");
       if (tree.exp == null) 
         returnType = 1; //return statement is void
       else 
@@ -546,6 +562,7 @@ public class TableGenerator
       {
         System.err.println("Error: Line " + (tree.pos+1) + ". Invalid return type.");
       }
+      comment("-> return");
       return returnType;
 
       
@@ -604,9 +621,61 @@ public class TableGenerator
   
   static private int generateTable( WhileExp tree, int spaces ) {
 
+    
+    
+    comment("<- while");
+    OpExp testExp = (OpExp)tree.test;
+    int jumpNum1 = jumpCount;
+    jumpCount++;
+    int jumpNum2 = jumpCount;
+    jumpCount++;
+    
+    
+    emitLAND(jumpNum2, pc);
+    int testType = generateTable(tree.test, spaces);
+    
+
+    
+    if(testExp.op == OpExp.EQLTY) 
+    {
+        emitJUMP("JNE", jumpNum1, pc, "JNE jump");
+    }
+    else if (testExp.op == OpExp.NE) 
+    {
+        emitJUMP("JEQ", jumpNum1, pc, "JEQ jump");
+    }
+    else if (testExp.op == OpExp.LT)
+    {
+        emitJUMP("JGE", jumpNum1, pc, "JGE jump");
+    }
+    else if (testExp.op == OpExp.LE)
+    {
+        emitJUMP("JGT", jumpNum1, pc, "JGT jump");
+    }
+    else if (testExp.op == OpExp.GT)
+    {
+        emitJUMP("JLE", jumpNum1, pc, "JLE jump");
+    }
+    else if (testExp.op == OpExp.GE)
+    {
+        emitJUMP("JLT", jumpNum1, pc, "JLT jump");
+    }
+    pc++;
+    generateTable( tree.body, spaces );
+    emitJUMP("JUMP", jumpNum2, pc, "jump back to test");
+    pc++;
+    emitLAND(jumpNum1, pc);
+    comment("-> while");
+    
+    
+    
+
+      return testType;
       
-      generateTable( tree.body, spaces );
-      return generateTable(tree.test, spaces);
+      
+      
+      /* generateTable( tree.body, spaces );
+      return generateTable(tree.test, spaces); */
       
   }
 
